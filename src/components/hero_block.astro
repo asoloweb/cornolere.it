@@ -69,7 +69,6 @@ function resolveImageSrc(value: string) {
 <style>
 	.hero_block {
 		padding: 30px;
-		color:#fff;
 		margin-bottom: 50px;
 		display: flex;
 		gap: 50px;
@@ -94,9 +93,10 @@ function resolveImageSrc(value: string) {
 
 	.colonna_testo .title {
 		font-size: 42px;
-		font-family: var(--font-body);
+		font-family: var(--font-heading);
 		line-height: 40px;
-		border-bottom: 4px solid var(--oro);
+		font-weight: bold;
+		border-bottom: 4px solid var(--secondary);
 		padding-bottom: 30px;
 		margin-bottom: 30px;
 		font-weight: 500;
@@ -104,7 +104,7 @@ function resolveImageSrc(value: string) {
 
 	.hero_button {
 		display: inline-block;
-		color: var(--oro);
+		color: var(--secondary);
 		text-decoration: none;
 	}
 	.hero_text {

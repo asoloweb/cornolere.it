@@ -1,0 +1,415 @@
+---
+import { DIRECTUS_URL } from '../lib/directus';
+
+interface Props {
+	title?: string;
+}
+
+const { title = 'Partecipa' } = Astro.props;
+
+const priceValue = import.meta.env.PUBLIC_PARTECIPA_PRICE ?? '110';
+const priceLabel = priceValue.includes('€') ? priceValue : `${priceValue}€`;
+const stripePublishableKey = import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY ?? '';
+const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL || import.meta.env.DIRECTUS_URL || DIRECTUS_URL;
+---
+
+<section class="contact_form">
+	<h2 class="contact_form_title">{title}</h2>
+
+	<form
+		class="contact_form_form"
+		method="post"
+		data-price={priceValue}
+		data-stripe-key={stripePublishableKey}
+		data-directus-url={directusUrl}
+	>
+		<label class="contact_form_field">
+			<span>Nome e cognome</span>
+			<input name="nome_cognome" type="text" autocomplete="name" required />
+		</label>
+
+		<label class="contact_form_field">
+			<span>Indirizzo</span>
+			<input name="indirizzo" type="text" autocomplete="street-address" required />
+		</label>
+
+		<label class="contact_form_field">
+			<span>Email</span>
+			<input name="email" type="email" autocomplete="email" required />
+		</label>
+
+		<label class="contact_form_field">
+			<span>Telefono</span>
+			<input name="telefono" type="tel" autocomplete="tel" required />
+		</label>
+
+		<label class="contact_form_field">
+			<span>Password</span>
+			<input name="password" type="password" autocomplete="new-password" minlength="8" required />
+		</label>
+
+		<label class="contact_form_field">
+			<span>Conferma password</span>
+			<input
+				name="password_confirm"
+				type="password"
+				autocomplete="new-password"
+				minlength="8"
+				required
+			/>
+		</label>
+
+		<label class="contact_form_field">
+			<span>Dati carta di credito</span>
+			<div id="card-element" class="stripe_card"></div>
+			<small class="stripe_help">I pagamenti sono gestiti in sicurezza da Stripe.</small>
+			<p class="stripe_error" role="alert"></p>
+		</label>
+
+		<label class="contact_form_privacy">
+			<input name="privacy" type="checkbox" required />
+			<span>
+				Accetto la <a href="/privacy-policy">privacy policy</a>
+			</span>
+		</label>
+
+		<label class="contact_form_privacy">
+			<input name="condizioni_uso" type="checkbox" required />
+			<span>
+				Accetto le <a href="/termini-e-condizioni">condizioni d'uso</a>
+			</span>
+		</label>
+
+		<p class="contact_form_price">Prezzo: {priceLabel}</p>
+
+		<button class="contact_form_submit" type="submit">PAGA ORA</button>
+		<p class="contact_form_status" role="status" aria-live="polite"></p>
+	</form>
+</section>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script type="module">
+	const initPartecipaStripe = () => {
+		const form = document.querySelector('.contact_form_form');
+		if (!(form instanceof HTMLFormElement)) return;
+
+		const statusEl = form.querySelector('.contact_form_status');
+		const submitButton = form.querySelector('.contact_form_submit');
+		const priceRaw = form.dataset.price || '';
+		const price = priceRaw ? (priceRaw.includes('€') ? priceRaw : `${priceRaw}€`) : '';
+		const stripeKey = form.dataset.stripeKey || '';
+		const directusUrl = form.dataset.directusUrl || '';
+		const stripeErrorEl = form.querySelector('.stripe_error');
+		const cardElementContainer = form.querySelector('#card-element');
+
+		if (!stripeKey) {
+			if (statusEl) {
+				statusEl.textContent =
+					'Stripe non configurato. Imposta PUBLIC_STRIPE_PUBLISHABLE_KEY.';
+				statusEl.dataset.state = 'error';
+			}
+			if (submitButton instanceof HTMLButtonElement) {
+				submitButton.disabled = true;
+			}
+			return;
+		}
+
+		const stripe = window.Stripe ? window.Stripe(stripeKey) : null;
+		if (!stripe || !cardElementContainer) {
+			if (statusEl) {
+				statusEl.textContent = 'Stripe non disponibile. Riprova più tardi.';
+				statusEl.dataset.state = 'error';
+			}
+			if (submitButton instanceof HTMLButtonElement) {
+				submitButton.disabled = true;
+			}
+			return;
+		}
+
+		const elements = stripe.elements();
+		const card = elements.create('card', {
+			style: {
+				base: {
+					fontSize: '16px',
+					color: '#0b0b0b',
+					fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
+					'::placeholder': { color: '#888' },
+				},
+				invalid: { color: '#b42318' },
+			},
+		});
+		card.mount(cardElementContainer);
+
+		card.on('change', (event) => {
+			if (stripeErrorEl) {
+				stripeErrorEl.textContent = event.error ? event.error.message : '';
+			}
+		});
+
+		form.addEventListener('submit', async (event) => {
+			event.preventDefault();
+			if (submitButton instanceof HTMLButtonElement) {
+				submitButton.disabled = true;
+			}
+			if (statusEl) {
+				statusEl.textContent = 'Invio in corso...';
+				statusEl.dataset.state = 'loading';
+			}
+
+			try {
+				const formData = new FormData(form);
+				const nomeCognome = String(formData.get('nome_cognome') || '').trim();
+				const indirizzo = String(formData.get('indirizzo') || '').trim();
+				const email = String(formData.get('email') || '').trim();
+				const telefono = String(formData.get('telefono') || '').trim();
+				const privacy = formData.get('privacy') ? 'si' : 'no';
+				const condizioniUso = formData.get('condizioni_uso') ? 'si' : 'no';
+				const password = String(formData.get('password') || '').trim();
+				const passwordConfirm = String(formData.get('password_confirm') || '').trim();
+
+				if (!password || password.length < 8 || password !== passwordConfirm) {
+					throw new Error('Password non valida o non corrispondente.');
+				}
+
+				const intentResponse = await fetch('/api/create-payment-intent', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						nome_cognome: nomeCognome,
+						indirizzo,
+						email,
+						telefono,
+						privacy,
+						condizioni_uso: condizioniUso,
+					}),
+				});
+
+				if (!intentResponse.ok) {
+					throw new Error(`Payment intent error: ${intentResponse.status}`);
+				}
+
+				const intentData = await intentResponse.json();
+				const clientSecret = intentData?.clientSecret;
+				if (!clientSecret) {
+					throw new Error('Missing client secret');
+				}
+
+				const paymentResult = await stripe.confirmCardPayment(clientSecret, {
+					payment_method: {
+						card,
+						billing_details: {
+							name: nomeCognome,
+							email,
+							phone: telefono,
+							address: { line1: indirizzo },
+						},
+					},
+				});
+
+				if (paymentResult.error) {
+					throw paymentResult.error;
+				}
+
+				if (paymentResult.paymentIntent?.status !== 'succeeded') {
+					throw new Error('Pagamento non completato');
+				}
+
+				const contattoLines = [
+					`Nome e cognome: ${nomeCognome}`,
+					`Indirizzo: ${indirizzo}`,
+					`Email: ${email}`,
+					`Telefono: ${telefono || '-'}`,
+					`Prezzo: ${price || '-'}`,
+					`Payment intent: ${paymentResult.paymentIntent?.id || '-'}`,
+				];
+				const contatto = contattoLines.join('\n');
+
+				const completeParams = new URLSearchParams();
+				completeParams.set('nome_cognome', nomeCognome);
+				completeParams.set('indirizzo', indirizzo);
+				completeParams.set('email', email);
+				if (telefono) completeParams.set('telefono', telefono);
+				completeParams.set('privacy', privacy);
+				completeParams.set('condizioni_uso', condizioniUso);
+				completeParams.set('password', password);
+				completeParams.set('contatto', contatto);
+				if (priceRaw || price) completeParams.set('prezzo', String(priceRaw || price));
+				if (paymentResult.paymentIntent?.id)
+					completeParams.set('payment_intent_id', paymentResult.paymentIntent?.id);
+
+				const completeUrl = `/api/complete-partecipa?${completeParams.toString()}`;
+				const completeResponse = await fetch(completeUrl, { method: 'GET' });
+
+				if (!completeResponse.ok) {
+					throw new Error(`Errore creazione pratica: ${completeResponse.status}`);
+				}
+
+				if (directusUrl) {
+					const loginResponse = await fetch(`${directusUrl}/auth/login`, {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ email, password }),
+					});
+					if (loginResponse.ok) {
+						const loginPayload = await loginResponse.json();
+						const data = loginPayload?.data;
+						if (data?.access_token) {
+							localStorage.setItem('directus_access_token', data.access_token);
+							if (data?.refresh_token) {
+								localStorage.setItem('directus_refresh_token', data.refresh_token);
+							}
+						}
+					}
+				}
+
+				const revenueValue = Number.parseFloat(String(priceRaw).replace(',', '.'));
+				if (window.umami?.track && Number.isFinite(revenueValue)) {
+					window.umami.track('purchase', {
+						revenue: revenueValue,
+						currency: 'EUR',
+						payment_intent_id: paymentResult.paymentIntent?.id,
+					});
+				}
+
+				form.reset();
+				card.clear();
+				if (statusEl) {
+					statusEl.textContent = 'Pagamento completato con successo.';
+					statusEl.dataset.state = 'success';
+				}
+				window.location.href = '/area-riservata';
+			} catch (error) {
+				console.error('Errore invio richiesta:', error);
+				if (statusEl) {
+					statusEl.textContent = "Errore durante il pagamento. Riprova più tardi.";
+					statusEl.dataset.state = 'error';
+				}
+			} finally {
+				if (submitButton instanceof HTMLButtonElement) {
+					submitButton.disabled = false;
+				}
+			}
+		});
+	};
+
+	initPartecipaStripe();
+</script>
+
+<style>
+	.contact_form {
+		background: var(--bianco);
+		border-radius: 24px;
+		padding: 28px;
+		color: var(--nero);
+	}
+
+	.contact_form_title {
+		margin: 0 0 18px;
+		font-size: 28px;
+	}
+
+	.contact_form_form {
+		display: flex;
+		flex-direction: column;
+		gap: 14px;
+	}
+
+	.contact_form_field {
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+		font-size: 14px;
+	}
+
+	.contact_form_field input {
+		border: 1px solid #d9d9d9;
+		border-radius: 12px;
+		padding: 12px 14px;
+		font: inherit;
+	}
+
+	.stripe_card {
+		border: 1px solid #d9d9d9;
+		border-radius: 12px;
+		padding: 12px 14px;
+		background: #fff;
+	}
+
+	.stripe_help {
+		font-size: 12px;
+		color: #666;
+	}
+
+	.stripe_error {
+		margin: 6px 0 0;
+		color: #b42318;
+		font-size: 12px;
+		min-height: 16px;
+	}
+
+	.contact_form_privacy {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		margin-top: 4px;
+		font-size: 14px;
+	}
+
+	.contact_form_privacy input {
+		width: 18px;
+		height: 18px;
+	}
+
+	.contact_form_privacy a {
+		color: var(--primary);
+		text-decoration: underline;
+	}
+
+	.contact_form_price {
+		margin: 6px 0 0;
+		font-size: 16px;
+		font-weight: 600;
+	}
+
+	.contact_form_submit {
+		margin-top: 6px;
+		border: 0;
+		border-radius: 999px;
+		padding: 12px 18px;
+		background: var(--primary);
+		color: var(--bianco);
+		font-family: var(--font-heading);
+		font-size: 16px;
+		cursor: pointer;
+		transition: transform 180ms ease, opacity 180ms ease;
+	}
+
+	.contact_form_submit:hover {
+		transform: translateY(-2px);
+		opacity: 0.95;
+	}
+
+	.contact_form_submit:disabled {
+		opacity: 0.7;
+		cursor: not-allowed;
+		transform: none;
+	}
+
+	.contact_form_status {
+		margin: 6px 2px 0;
+		font-size: 14px;
+		min-height: 20px;
+	}
+
+	.contact_form_status[data-state='success'] {
+		color: #1c7c3a;
+	}
+
+	.contact_form_status[data-state='error'] {
+		color: #b42318;
+	}
+
+	.contact_form_status[data-state='loading'] {
+		color: #555;
+	}
+</style>

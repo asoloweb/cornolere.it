@@ -53,13 +53,11 @@ try {
 		{seoDescription && <meta name="description" content={seoDescription} />}
 		<link rel="stylesheet" href="/vendor/aos.css" />
 		<link rel="stylesheet" href="/vendor/swiper-bundle.min.css" />
-		<!-- Cloudflare Web Analytics -->
 		<script
 			defer
-			src="https://static.cloudflareinsights.com/beacon.min.js"
-			data-cf-beacon='{"token": "e50ba351768e489c93b362f78d5f2442"}'
+			src="https://umami.asoloweb.it/script.js"
+			data-website-id="517b6a8c-733f-4d9f-a924-17c001c2806d"
 		></script>
-		<!-- End Cloudflare Web Analytics -->
 	</head>
 	<body>
 		<Header />
@@ -71,5 +69,6 @@ try {
 		<script defer src="/vendor/swiper-bundle.min.js"></script>
 		<script defer src="/scripts/aos-init.js"></script>
 		<script defer src="/scripts/swiper-init.js"></script>
+		<slot name="scripts" />
 	</body>
 </html>

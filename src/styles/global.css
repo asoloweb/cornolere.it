@@ -1,22 +1,15 @@
-@import "@fontsource/lexend/300.css";
-@import "@fontsource/lexend/400.css";
-@import "@fontsource/lexend/500.css";
-@import "@fontsource/lexend/600.css";
-@import "@fontsource/lexend/700.css";
-@import "@fontsource/libre-bodoni/400.css";
-@import "@fontsource/libre-bodoni/500.css";
-@import "@fontsource/libre-bodoni/600.css";
-@import "@fontsource/libre-bodoni/700.css";
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
 
 :root {
-  --blu: #003147;
-  --oro: #c1a776;
+  --primary: #FF5E00;
+  --secondary: #000000;
   --bianco: #ffffff;
   --nero: #0b0b0b;
   --grigio-chiaro: #f5f5f5;
   --max-width: 1200px;
-  --font-body: "Lexend", "Helvetica Neue", Arial, sans-serif;
-  --font-heading: "Libre Bodoni", "Times New Roman", serif;
+  --font-body: "Roboto", "Helvetica Neue", Arial, sans-serif;
+  --font-heading: "Bebas Neue", "Arial", sans-serif;
 }
 
 * {
@@ -27,7 +20,6 @@ body {
   margin: 0;
   font-family: var(--font-body);
   color: var(--nero);
-  background: linear-gradient(45deg, var(--blu), #021720);
 }
 
 h1,
@@ -52,9 +44,8 @@ a {
 }
 
 .site-header {
-    background: var(--blu);
-    color: var(--bianco);
-    border-top: 10px solid var(--oro);
+    background: var(--bianco);
+    color: var(--nero);
     display: flex;
     height: 130px;
     border-bottom: 2px solid #f2f2f224;
@@ -140,7 +131,6 @@ a {
     font-size:18px;
     font-family: var(--font-heading);
     font-weight: 400;
-    color:#f2f2f2;
 }
 
 .menu_item:hover {
@@ -157,6 +147,8 @@ a {
   align-items: center;
   justify-content: center;
   height: 400px;
+  color:#fff;
+  background-color: var(--nero);
   flex-direction: column;
 }
 
@@ -232,11 +224,11 @@ a {
     top: 142px;
     width: calc(100% - 20px);
     left: 10px;
-    color: var(--blu);
+    color: var(--primary);
   }
 
   .MenuItemsContainer a {
-    color:var(--blu);
+    color:var(--primary);
     font-size: 24px;
     padding: 15px;
   }

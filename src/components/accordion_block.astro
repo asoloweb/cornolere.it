@@ -1,0 +1,156 @@
+---
+interface SingleAccordionItem {
+	id?: number;
+	titolo?: string;
+	descrizione?: string;
+	Espanso?: boolean;
+}
+
+interface AccordionRelation {
+	single_accordion_id?: SingleAccordionItem | number | null;
+}
+
+interface Props {
+	titolo?: string;
+	label?: string;
+	link?: string;
+	accordion?: AccordionRelation[] | SingleAccordionItem[];
+}
+
+const { titolo = '', label = '', link = '', accordion = [] } = Astro.props;
+
+function normalizeAccordionItems(input: AccordionRelation[] | SingleAccordionItem[]) {
+	if (!Array.isArray(input)) return [];
+	return input
+		.map((entry) => {
+			if (!entry || typeof entry !== 'object') return null;
+			if ('single_accordion_id' in entry) {
+				return entry.single_accordion_id && typeof entry.single_accordion_id === 'object'
+					? (entry.single_accordion_id as SingleAccordionItem)
+					: null;
+			}
+			if ('titolo' in entry || 'descrizione' in entry) {
+				return entry as SingleAccordionItem;
+			}
+			return null;
+		})
+		.filter((entry): entry is SingleAccordionItem => Boolean(entry));
+}
+
+const items = normalizeAccordionItems(accordion);
+---
+
+<section class="accordion_block" data-aos="fade-up" data-aos-duration="1500">
+	<div class="accordion_block_inner">
+		{titolo && <h2 class="accordion_block_title" set:html={titolo} />}
+
+		{items.length > 0 && (
+			<div class="accordion_items">
+				{items.map((item, index) => (
+					<details class="accordion_item" open={item.Espanso === true}>
+						<summary class="accordion_summary">
+							<span class="accordion_icon" aria-hidden="true">+</span>
+							<span class="accordion_item_title" set:html={item.titolo || `Voce ${index + 1}`} />
+						</summary>
+						<div class="accordion_content">
+							<div set:html={item.descrizione || ''} />
+						</div>
+					</details>
+				))}
+			</div>
+		)}
+
+		{label && link && (
+			<a class="accordion_button MainButton" href={link}>
+				{label}
+			</a>
+		)}
+	</div>
+</section>
+
+<style>
+	.accordion_block {
+		margin-bottom:40px;
+	}
+
+	.accordion_block_inner {
+		max-width: var(--max-width);
+		margin: 0 auto;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	.accordion_block_title {
+		margin: 0 0 22px;
+		font-size: clamp(30px, 4vw, 44px);
+		text-align: center;
+	}
+
+	.accordion_items {
+		display: grid;
+		gap: 12px;
+	}
+
+	.accordion_item {
+		background: var(--bianco);
+		border-radius: 14px;
+		overflow: hidden;
+	}
+
+	.accordion_summary {
+		cursor: pointer;
+		padding: 16px 18px;
+		font-size: 36px;
+		font-family: var(--font-heading);
+		list-style: none;
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+		gap: 10px;
+		text-align: left;
+	}
+
+	.accordion_summary::-webkit-details-marker {
+		display: none;
+	}
+
+	.accordion_summary::after {
+		content: none !important;
+		display: none !important;
+	}
+
+	.accordion_icon {
+		flex: 0 0 28px;
+		width: 28px;
+		height: 28px;
+		background-color:var(--primary);
+		color:#fff;
+		border-radius:100%;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 34px;
+		line-height: 1;
+		transition: transform 260ms ease;
+	}
+
+	.accordion_item[open] .accordion_icon {
+		transform: rotate(90deg);
+	}
+
+	.accordion_item_title,
+	.accordion_content {
+		text-align: left;
+	}
+
+	.accordion_content {
+		padding: 0 30px 16px;
+		line-height: 1.6;
+	}
+
+	.accordion_button {
+		display: inline-block;
+		margin-top: 22px;
+	}
+</style>

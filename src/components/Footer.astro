@@ -121,6 +121,12 @@ function getItemHref(item: MenuItem) {
 function getItemTitle(item: MenuItem, index: number) {
 	return item.label || getItemPage(item)?.title || `Link ${index + 1}`;
 }
+
+function getMenuItemIdClass(item: MenuItem, index: number, menuIndex: number) {
+	const raw = item.id != null ? String(item.id) : `menu-${menuIndex + 1}-index-${index + 1}`;
+	const safe = raw.toLowerCase().replace(/[^a-z0-9_-]+/g, '-');
+	return `menu_item_id_${safe}`;
+}
 ---
 
 <footer class="site-footer">
@@ -131,13 +137,14 @@ function getItemTitle(item: MenuItem, index: number) {
 			</a>
 		</div>
 		<div class="FooterItemsContainer">
-			{footerMenus.map((footerMenu) => (
+			{footerMenus.map((footerMenu, menuIndex) => (
 				<div class="FooterMenuColumn">
 					{footerMenu.items.map((item, index) => {
 						const href = getItemHref(item);
 						const title = getItemTitle(item, index);
+						const idClass = getMenuItemIdClass(item, index, menuIndex);
 						return (
-							<a href={href} class="menu_item">
+							<a href={href} class={`menu_item ${idClass}`}>
 								{title}
 							</a>
 						);

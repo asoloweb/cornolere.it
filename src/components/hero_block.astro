@@ -55,11 +55,11 @@ function resolveImageSrc(value: string) {
 		</div>
 	)}
 	<div class="colonna colonna_testo">
-		{titolo && <div class="title">{titolo}</div>}
-		{sottotitolo && <h3>{sottotitolo}</h3>}
+		{titolo && <div class="title" set:html={titolo} />}
+		{sottotitolo && <h3 set:html={sottotitolo} />}
 		{paragrafo && <div class="hero_text" set:html={paragrafo} />}
 		{label && href && (
-			<a class="hero_button" href={href}>
+			<a class="hero_button MainButton" href={href}>
 				{label}
 			</a>
 		)}
@@ -76,6 +76,7 @@ function resolveImageSrc(value: string) {
 		max-width: var(--max-width);
 		margin: auto;
 		margin-bottom:40px;
+		background-color:#fff;
 	}
 	.colonna {
 		flex: 1;
@@ -92,13 +93,12 @@ function resolveImageSrc(value: string) {
 	}
 
 	.colonna_testo .title {
-		font-size: 42px;
+		font-size: 60px;
 		font-family: var(--font-heading);
 		line-height: 40px;
 		font-weight: bold;
-		border-bottom: 4px solid var(--secondary);
-		padding-bottom: 30px;
-		margin-bottom: 30px;
+		margin-top: 40px;
+		margin-bottom: 20px;
 		font-weight: 500;
 	}
 

@@ -23,17 +23,19 @@ interface PageItem {
 }
 
 interface Options {
+	logo_dark?: string;
 	logo_light?: string;
 }
 
-let logoLightSrc = import.meta.env.PUBLIC_LOGO_LIGHT || '/favicon.svg';
+let logoDarkSrc =
+	import.meta.env.PUBLIC_LOGO_DARK || import.meta.env.PUBLIC_LOGO_LIGHT || '/favicon.svg';
 const currentPath = Astro.url?.pathname ?? '/';
 
 let menuItems: MenuItem[] = [];
 
 try {
 	const optionsUrl = directusItemsUrl('options');
-	optionsUrl.searchParams.set('fields', 'logo_light');
+	optionsUrl.searchParams.set('fields', 'logo_dark');
 	const optionsResponse = await fetch(optionsUrl);
 	if (optionsResponse.ok) {
 		const optionsPayload = await optionsResponse.json();
@@ -41,8 +43,8 @@ try {
 			optionsPayload?.data && Array.isArray(optionsPayload.data)
 				? optionsPayload.data[0]
 				: optionsPayload?.data;
-		if (options?.logo_light) {
-			logoLightSrc = resolveImageSrc(options.logo_light);
+		if (options?.logo_dark) {
+			logoDarkSrc = resolveImageSrc(options.logo_dark);
 		}
 	}
 
@@ -137,13 +139,23 @@ function getItemTitle(item: MenuItem, index: number) {
 		`Link ${index + 1}`
 	);
 }
----
 
+function getMenuItemIdClass(item: MenuItem, index: number) {
+	const raw = item.id != null ? String(item.id) : `index-${index + 1}`;
+	const safe = raw.toLowerCase().replace(/[^a-z0-9_-]+/g, '-');
+	return `menu_item_id_${safe}`;
+}
+---
+<div class="TopBar">
+	<a target="_blank" href="https://maps.app.goo.gl/Eg3tNKrkvrEuo1jz7">Strada Comunale Delle Corti, 61 - TREVISO  </a>
+	<a href="tel:+390423223322">0423.223322</a>
+	<a href="mailto:info@controllocartellesattoriali.it">info@controllocartellesattoriali.it</a>
+</div>
 <header class="site-header">
 	<nav aria-label="Menu principale">
 		<div>
 			<a href="/">
-				<img class="MenuLogo" src={logoLightSrc} alt="Logo" />
+				<img class="MenuLogo" src={logoDarkSrc} alt="Logo" />
 			</a>
 		</div>
 		<div class="MenuItemsContainer">
@@ -151,7 +163,10 @@ function getItemTitle(item: MenuItem, index: number) {
 			const href = getItemHref(item);
 			const title = getItemTitle(item, index);
 			const isCurrent = isCurrentMenuItem(href);
-			const className = isCurrent ? 'menu_item current_menu_item' : 'menu_item';
+			const idClass = getMenuItemIdClass(item, index);
+			const className = isCurrent
+				? `menu_item current_menu_item ${idClass}`
+				: `menu_item ${idClass}`;
 			return (
 				<a href={href} class={className}>
 					{title}

@@ -65,7 +65,7 @@ const cards = normalizeCards(card);
 {cards.length > 0 && (
 	<section class="cards_block" data-aos="fade-up" data-aos-duration="1500">
 		<div class="cards_block_inner">
-			{titolo && <h2 class="cards_block_title">{titolo}</h2>}
+			{titolo && <h2 class="cards_block_title" set:html={titolo} />}
 
 			<div class="cards_grid">
 				{cards.map((single) => {
@@ -80,7 +80,7 @@ const cards = normalizeCards(card);
 									<img src={imageSrc} alt={single.titolo_card || ''} loading="lazy" />
 								</div>
 							)}
-							{single.titolo_card && <h3 class="cards_card_title">{single.titolo_card}</h3>}
+							{single.titolo_card && <h3 class="cards_card_title" set:html={single.titolo_card} />}
 						</Tag>
 					);
 				})}
@@ -91,24 +91,36 @@ const cards = normalizeCards(card);
 
 <style>
 	.cards_block {
-		padding: 40px 20px 20px;
+		margin-bottom:40px;
 	}
 
 	.cards_block_inner {
 		max-width: var(--max-width);
 		margin: 0 auto;
+		padding:30px;
+		border-radius:20px;
+		background-color:#fff;
 	}
 
 	.cards_block_title {
-		margin: 0 0 24px;
-		color: var(--bianco);
-		font-size: clamp(28px, 4vw, 42px);
+		margin: 40px 0;
+		color: #000;
+		font-size:60px;
+	}
+
+	.cards_block_title :global(span) {
+		color: var(--primary);
+	}
+
+	.cards_block_inner :global(span) {
+		color: var(--primary);
 	}
 
 	.cards_grid {
 		display: grid;
 		grid-template-columns: repeat(3, minmax(0, 1fr));
 		gap: 24px;
+		margin-bottom:40px;
 	}
 
 	.cards_card {
@@ -121,6 +133,11 @@ const cards = normalizeCards(card);
 		color: var(--nero);
 		transition: transform 200ms ease, box-shadow 200ms ease;
 		min-height: 100%;
+		box-shadow: 4px 11px 20px #00000029;
+		text-align: center;
+		align-items: center;
+		min-height: 240px;
+		justify-content: center;
 	}
 
 	a.cards_card:hover {
@@ -128,23 +145,14 @@ const cards = normalizeCards(card);
 		box-shadow: 0 16px 30px rgba(0, 0, 0, 0.15);
 	}
 
-	.cards_card_media {
-		overflow: hidden;
-		border-radius: 12px;
-		aspect-ratio: 4 / 3;
-		background: var(--grigio-chiaro);
-	}
-
 	.cards_card_media img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
+		height: 70px;
 	}
 
 	.cards_card_title {
 		margin: 4px 0 0;
-		font-size: 20px;
-		line-height: 1.3;
+		font-size: 22px;
+		line-height: 24px;
 	}
 
 	@media (max-width: 1024px) {
@@ -159,4 +167,3 @@ const cards = normalizeCards(card);
 		}
 	}
 </style>
-

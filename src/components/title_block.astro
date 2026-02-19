@@ -16,9 +16,9 @@ const {
 
 <div class="title_block">
 	<div class="title_content">
-		{titolo && <h1>{titolo}</h1>}
-		{sottotitolo && <h2>{sottotitolo}</h2>}
-		{descrizione && <p>{descrizione}</p>}
+		{titolo && <h1 set:html={titolo} />}
+		{sottotitolo && <h2 set:html={sottotitolo} />}
+		{descrizione && <p set:html={descrizione} />}
 	</div>
 </div>
 

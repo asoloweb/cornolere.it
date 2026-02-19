@@ -3,6 +3,7 @@ import HeroBlock from '../components/hero_block.astro';
 import TitleBlock from '../components/title_block.astro';
 import SliderBlock from '../components/slider_block.astro';
 import CardsBlock from '../components/cards_block.astro';
+import AccordionBlock from '../components/accordion_block.astro';
 import { DIRECTUS_URL } from '../lib/directus';
 
 type HeroBlockItem = {
@@ -64,9 +65,37 @@ type CardsBlockItem = {
 	card?: CardRelation[] | SingleCardItem[];
 };
 
+type SingleAccordionItem = {
+	id?: number;
+	titolo?: string;
+	descrizione?: string;
+	Espanso?: boolean;
+};
+
+type AccordionRelation = {
+	single_accordion_id?: SingleAccordionItem | number | null;
+};
+
+type AccordionBlockItem = {
+	id?: number;
+	Titolo?: string;
+	titolo?: string;
+	label?: string;
+	link?: string;
+	accordion?: AccordionRelation[] | SingleAccordionItem[];
+};
+
 type EditorEntry = {
 	collection?: string;
-	item?: HeroBlockItem | TitleBlockItem | SliderBlockItem | CardsBlockItem | number | string | null;
+	item?:
+		| HeroBlockItem
+		| TitleBlockItem
+		| SliderBlockItem
+		| CardsBlockItem
+		| AccordionBlockItem
+		| number
+		| string
+		| null;
 };
 
 type Page = {
@@ -112,6 +141,9 @@ function resolveCollection(block: EditorEntry) {
 	if (block.collection) return block.collection;
 	const item = block.item;
 	if (item && typeof item === 'object') {
+		if ('accordion' in item) {
+			return 'accordion_block';
+		}
 		if ('card' in item) {
 			return 'cards_block';
 		}
@@ -165,6 +197,42 @@ function normalizeCards(input: CardRelation[] | SingleCardItem[] | undefined) {
 		})
 		.filter((card): card is SingleCardItem => Boolean(card));
 }
+
+function normalizeAccordionItems(input: AccordionRelation[] | SingleAccordionItem[] | undefined) {
+	if (!Array.isArray(input)) return [];
+	return input
+		.map((entry) => {
+			if (!entry || typeof entry !== 'object') return null;
+			if ('single_accordion_id' in entry) {
+				return entry.single_accordion_id && typeof entry.single_accordion_id === 'object'
+					? (entry.single_accordion_id as SingleAccordionItem)
+					: null;
+			}
+			if ('titolo' in entry || 'descrizione' in entry) {
+				return entry as SingleAccordionItem;
+			}
+			return null;
+		})
+		.filter((accordion): accordion is SingleAccordionItem => Boolean(accordion));
+}
+
+function toSlug(value: string) {
+	return value
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, '-')
+		.replace(/^-+|-+$/g, '');
+}
+
+function getBlockDomId(block: EditorEntry, collection: string, index: number) {
+	const itemId =
+		block.item && typeof block.item === 'object' && 'id' in block.item && block.item.id != null
+			? toSlug(String(block.item.id))
+			: '';
+	const collectionSlug = toSlug(collection) || 'block';
+	return itemId
+		? `block-${collectionSlug}-${itemId}-${index + 1}`
+		: `block-${collectionSlug}-${index + 1}`;
+}
 ---
 
 {page ? (
@@ -185,15 +253,16 @@ function normalizeCards(input: CardRelation[] | SingleCardItem[] | undefined) {
 			</>
 )}
 		{page?.contenuto && <div>{page.contenuto}</div>}
-		{blocks.map((block) => {
+		{blocks.map((block, index) => {
 			const collection = resolveCollection(block);
 			if (!collection) return null;
 			if (!block.item || typeof block.item !== 'object') return null;
+			let blockContent: any = null;
 
 			switch (collection) {
 				case 'hero_block': {
 					const hero = block.item as HeroBlockItem;
-					return (
+					blockContent = (
 						<HeroBlock
 							titolo={hero.titolo}
 							sottotitolo={hero.sottotitolo}
@@ -205,10 +274,12 @@ function normalizeCards(input: CardRelation[] | SingleCardItem[] | undefined) {
 							background_color={hero.background_color}
 						/>
 					);
+					break;
 				}
 				case 'title_block': {
 					const title = block.item as TitleBlockItem;
-					return <TitleBlock item={String(title.id ?? '')} titolo={title.title} />;
+					blockContent = <TitleBlock item={String(title.id ?? '')} titolo={title.title} />;
+					break;
 				}
 				case 'slider_block': {
 					const sliderBlock = block.item as SliderBlockItem;
@@ -217,16 +288,37 @@ function normalizeCards(input: CardRelation[] | SingleCardItem[] | undefined) {
 							? sliderBlock.slider
 							: null
 					);
-					return <SliderBlock slides={slides} />;
+					blockContent = <SliderBlock slides={slides} />;
+					break;
 				}
 				case 'cards_block': {
 					const cardsBlock = block.item as CardsBlockItem;
 					const cards = normalizeCards(cardsBlock.card);
-					return <CardsBlock titolo={cardsBlock.titolo} card={cards} />;
+					blockContent = <CardsBlock titolo={cardsBlock.titolo} card={cards} />;
+					break;
+				}
+				case 'accordion_block': {
+					const accordionBlock = block.item as AccordionBlockItem;
+					const items = normalizeAccordionItems(accordionBlock.accordion);
+					blockContent = (
+						<AccordionBlock
+							titolo={accordionBlock.Titolo || accordionBlock.titolo}
+							label={accordionBlock.label}
+							link={accordionBlock.link}
+							accordion={items}
+						/>
+					);
+					break;
 				}
 				default:
 					return null;
 			}
+
+			return (
+				<section id={getBlockDomId(block, collection, index)} class={`editor_block editor_block_${collection}`}>
+					{blockContent}
+				</section>
+			);
 		})}
 	</>
 ) : (

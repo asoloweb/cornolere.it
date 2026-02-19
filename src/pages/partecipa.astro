@@ -22,7 +22,7 @@ async function fetchPartecipaPage() {
 	const url = directusItemsUrl('pages');
 	url.searchParams.set(
 		'fields',
-		'*,slug.*,editor.item.*,editor.item.slider.*,editor.item.slider.slides.item.*,editor.item.card.single_card_id.*,editor.item.card.single_card_id.link.id,editor.item.card.single_card_id.link.slug,editor.item.card.single_card_id.link.title'
+		'*,slug.*,editor.item.*,editor.item.slider.*,editor.item.slider.slides.item.*,editor.item.card.single_card_id.*,editor.item.card.single_card_id.link.id,editor.item.card.single_card_id.link.slug,editor.item.card.single_card_id.link.title,editor.item.accordion.single_accordion_id.*'
 	);
 	url.searchParams.set('filter[status][_eq]', 'published');
 	url.searchParams.set('filter[slug][_eq]', 'partecipa');

@@ -20,6 +20,7 @@ body {
   margin: 0;
   font-family: var(--font-body);
   color: var(--nero);
+  background-color:#f3f3f3;
 }
 
 h1,
@@ -29,7 +30,7 @@ h4,
 h5,
 h6 {
   font-family: var(--font-heading);
-  font-weight: 600;
+  font-weight: 100;
 }
 
 img {
@@ -44,11 +45,68 @@ a {
 }
 
 .site-header {
-    background: var(--bianco);
     color: var(--nero);
     display: flex;
     height: 130px;
-    border-bottom: 2px solid #f2f2f224;
+    margin-top:30px;
+    margin-bottom:30px;
+}
+
+.MainButton {
+  background-color: var(--primary);
+  color:#fff !important;
+  padding:20px;
+  border-radius: 20px;
+  width:fit-content;
+  font-weight: bold;
+  min-width: 300px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+#block-hero-block-14-1 .title {
+  font-size: 80px;
+  line-height: 70px;
+}
+
+#block-hero-block-14-1 h3 {
+  font-size: 19px;
+  line-height: 24px;
+  margin-top: 0;
+  font-family: var(--font-body);
+  font-weight: normal;
+  margin-bottom:30px;
+}
+
+#block-hero-block-14-1 span {
+  color:var(--primary);
+}
+
+.TopBar {
+    height: 50px;
+    color: #fff;
+    width: 100%;
+    padding: 5px;
+    background-color: #000;
+    align-items: center;
+    justify-content: end;
+    display: flex;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-family: var(--font-heading);
+    gap: 35px;
+}
+
+.TopBar a {
+    padding: 6px 10px;
+    background: #8c8c8c47;
+    border-radius: 20px;
+    color: #fff;
+    transition: all .4s;
+}
+
+.TopBar a:hover {
+  background-color:var(--primary);
 }
 
 .site-header nav {
@@ -128,17 +186,24 @@ a {
     border-radius: 999px;
     transition: all .6s ease-in-out;
     letter-spacing: 1px;
-    font-size:18px;
+    font-size:28px;
     font-family: var(--font-heading);
     font-weight: 400;
+    transition: all .4s;
+}
+
+.menu_item_id_14 {
+  background-color:var(--primary);
+  color:#fff;
 }
 
 .menu_item:hover {
-  background: #ffffff1a;
+  box-shadow: inset 1px 1px 10px #00000057;
 }
 
 .current_menu_item {
-  background: #ffffff1a;
+  box-shadow: inset 1px 1px 6px #00000057;
+  color:var(--primary);
 }
 
 .site-footer {
@@ -158,15 +223,24 @@ a {
   margin-top:30px;
 }
 
+#block-cards-block-5-4 .cards_card_media img {
+  height:200px !important;
+}
+
 .site-footer nav {
     max-width: var(--max-width);
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-around;
-    border-top: 2px solid #f2f2f221;
     padding: 100px 0;
     border-bottom: 2px solid #f2f2f221;
+}
+
+#block-hero-block-13-3 .MainButton {
+  background-color:transparent !important;
+  color: var(--primary) !important;
+  padding:0 !important;
 }
 
 .FooterItemsContainer {

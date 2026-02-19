@@ -57,10 +57,10 @@ function resolveImageSrc(value: string | undefined) {
 				class="swiper-slide single_slide"
 				style={slide.immagine ? `background-image: url('${resolveImageSrc(slide.immagine)}')` : ''}
 			>
-				{slide.titolo && <h1 data-aos="fade-up" data-aos-duration="1500">{slide.titolo}</h1>}
-				{slide.sottotitolo && <h2 data-aos="fade-up" data-aos-duration="1800">{slide.sottotitolo}</h2>}
+				{slide.titolo && <h1 data-aos="fade-up" data-aos-duration="1500" set:html={slide.titolo} />}
+				{slide.sottotitolo && <h2 data-aos="fade-up" data-aos-duration="1800" set:html={slide.sottotitolo} />}
 				{slide.label && slide.href && (
-					<button data-aos="fade-up" data-aos-duration="2000" class="slider_button" type="button" data-href={slide.href}>
+					<button data-aos="fade-up" data-aos-duration="2000" class="slider_button MainButton" type="button" data-href={slide.href}>
 						{slide.label}
 					</button>
 				)}

@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageContent from '../components/PageContent.astro';
 import PartecipaForm from '../components/PartecipaForm.astro';
+import GoogleReviewsBlock from '../components/google_reviews_block.astro';
 import { DIRECTUS_URL, directusItemsUrl } from '../lib/directus';
 
 type Page = {
@@ -68,6 +69,12 @@ const showPageHeader = page ? !page.hide_page_header : false;
 			</div>
 		</div>
 	)}
+	<GoogleReviewsBlock
+		titolo="Cosa dicono i clienti"
+		sottotitolo="Recensioni Google di Studio Legale Portantiolo & Partners"
+		google_business_query="Studio Legale Portantiolo & Partners"
+		numero_recensioni={9}
+	/>
 
 	{showPageHeader && (
 		<div

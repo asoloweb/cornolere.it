@@ -4,6 +4,7 @@ import TitleBlock from '../components/title_block.astro';
 import SliderBlock from '../components/slider_block.astro';
 import CardsBlock from '../components/cards_block.astro';
 import AccordionBlock from '../components/accordion_block.astro';
+import GoogleReviewsBlock from '../components/google_reviews_block.astro';
 import { DIRECTUS_URL } from '../lib/directus';
 
 type HeroBlockItem = {
@@ -50,6 +51,7 @@ type PageRef = {
 type SingleCardItem = {
 	id?: number;
 	titolo_card?: string;
+	descrizione?: string;
 	immagine?: string;
 	href?: string;
 	link?: PageRef | number | null;
@@ -85,6 +87,17 @@ type AccordionBlockItem = {
 	accordion?: AccordionRelation[] | SingleAccordionItem[];
 };
 
+type GoogleReviewsBlockItem = {
+	id?: number;
+	titolo?: string;
+	sottotitolo?: string;
+	google_place_id?: string;
+	google_business_query?: string;
+	numero_recensioni?: number;
+	cta_label?: string;
+	cta_href?: string;
+};
+
 type EditorEntry = {
 	collection?: string;
 	item?:
@@ -93,6 +106,7 @@ type EditorEntry = {
 		| SliderBlockItem
 		| CardsBlockItem
 		| AccordionBlockItem
+		| GoogleReviewsBlockItem
 		| number
 		| string
 		| null;
@@ -144,6 +158,9 @@ function resolveCollection(block: EditorEntry) {
 		if ('accordion' in item) {
 			return 'accordion_block';
 		}
+		if ('google_place_id' in item || 'google_business_query' in item || 'numero_recensioni' in item) {
+			return 'google_reviews_block';
+		}
 		if ('card' in item) {
 			return 'cards_block';
 		}
@@ -190,7 +207,7 @@ function normalizeCards(input: CardRelation[] | SingleCardItem[] | undefined) {
 					? (entry.single_card_id as SingleCardItem)
 					: null;
 			}
-			if ('titolo_card' in entry || 'immagine' in entry || 'href' in entry) {
+			if ('titolo_card' in entry || 'descrizione' in entry || 'immagine' in entry || 'href' in entry) {
 				return entry as SingleCardItem;
 			}
 			return null;
@@ -306,6 +323,22 @@ function getBlockDomId(block: EditorEntry, collection: string, index: number) {
 							label={accordionBlock.label}
 							link={accordionBlock.link}
 							accordion={items}
+						/>
+					);
+					break;
+				}
+				case 'google_reviews_block':
+				case 'google_reviews': {
+					const googleReviewsBlock = block.item as GoogleReviewsBlockItem;
+					blockContent = (
+						<GoogleReviewsBlock
+							titolo={googleReviewsBlock.titolo}
+							sottotitolo={googleReviewsBlock.sottotitolo}
+							google_place_id={googleReviewsBlock.google_place_id}
+							google_business_query={googleReviewsBlock.google_business_query}
+							numero_recensioni={googleReviewsBlock.numero_recensioni}
+							cta_label={googleReviewsBlock.cta_label}
+							cta_href={googleReviewsBlock.cta_href}
 						/>
 					);
 					break;

@@ -17,6 +17,24 @@ document.addEventListener('DOMContentLoaded', () => {
       watchOverflow: false,
     };
 
+    if (el.classList.contains('google_reviews_slider')) {
+      options.autoHeight = true;
+      options.autoplay = {
+        delay: 3500,
+        disableOnInteraction: false,
+      };
+      options.breakpoints = {
+        640: {
+          slidesPerView: 2,
+          spaceBetween: 20,
+        },
+        900: {
+          slidesPerView: 3,
+          spaceBetween: 24,
+        },
+      };
+    }
+
     if (paginationEl) {
       options.pagination = { el: paginationEl, clickable: true };
     }

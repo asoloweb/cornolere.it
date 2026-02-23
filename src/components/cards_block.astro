@@ -9,6 +9,7 @@ interface PageRef {
 interface SingleCard {
 	id?: number;
 	titolo_card?: string;
+	descrizione?: string;
 	immagine?: string;
 	href?: string;
 	link?: PageRef | number | null;
@@ -43,7 +44,7 @@ function normalizeCards(input: CardRelation[] | SingleCard[]) {
 					? (entry.single_card_id as SingleCard)
 					: null;
 			}
-			if ('titolo_card' in entry || 'immagine' in entry || 'href' in entry) {
+			if ('titolo_card' in entry || 'descrizione' in entry || 'immagine' in entry || 'href' in entry) {
 				return entry as SingleCard;
 			}
 			return null;
@@ -81,6 +82,7 @@ const cards = normalizeCards(card);
 								</div>
 							)}
 							{single.titolo_card && <h3 class="cards_card_title" set:html={single.titolo_card} />}
+							{single.descrizione && <p class="cards_card_description" set:html={single.descrizione} />}
 						</Tag>
 					);
 				})}
@@ -106,6 +108,7 @@ const cards = normalizeCards(card);
 		margin: 40px 0;
 		color: #000;
 		font-size:60px;
+		line-height: 60px;
 	}
 
 	.cards_block_title :global(span) {
@@ -153,6 +156,12 @@ const cards = normalizeCards(card);
 		margin: 4px 0 0;
 		font-size: 22px;
 		line-height: 24px;
+	}
+
+	.cards_card_description {
+		margin: 4px 0 0;
+		font-size: 16px;
+		line-height: 22px;
 	}
 
 	@media (max-width: 1024px) {

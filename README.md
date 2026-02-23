@@ -38,6 +38,15 @@ All commands are run from the root of the project, from a terminal:
 | `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
 | `npm run astro -- --help` | Get help using the Astro CLI                     |
 
+## Google Reviews Block
+
+Per usare il blocco slider recensioni Google, configura almeno:
+
+- `GOOGLE_MAPS_API_KEY` oppure `GOOGLE_PLACES_API_KEY`
+- opzionale: `GOOGLE_MYBUSINESS_PLACE_ID`
+
+Se `GOOGLE_MYBUSINESS_PLACE_ID` non e impostato, il blocco tenta la ricerca automatica dal campo `google_business_query`.
+
 ## 👀 Want to learn more?
 
 Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).

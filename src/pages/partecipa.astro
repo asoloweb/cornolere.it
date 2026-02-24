@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PageContent from '../components/PageContent.astro';
 import PartecipaForm from '../components/PartecipaForm.astro';
 import GoogleReviewsBlock from '../components/google_reviews_block.astro';
+import HeroBlock from '../components/hero_block.astro';
 import { DIRECTUS_URL, directusItemsUrl } from '../lib/directus';
 
 type Page = {
@@ -17,6 +18,18 @@ type Page = {
 	page_header?: string;
 	featured_image?: string;
 	editor?: unknown[];
+};
+
+type HeroBlockItem = {
+	id?: number;
+	titolo?: string;
+	sottotitolo?: string;
+	paragrafo?: string;
+	label?: string;
+	href?: string;
+	immagine?: string;
+	inverti?: boolean;
+	background_color?: string;
 };
 
 async function fetchPartecipaPage() {
@@ -36,8 +49,19 @@ async function fetchPartecipaPage() {
 const page: Page | null = await fetchPartecipaPage();
 const pageTitle = page?.title || page?.Titolo || '';
 const pageDescription = page?.description || '';
-const preHeaderTitle = page?.page_header || pageTitle;
-const preHeaderDescription = page?.description || '';
+
+const homeHero14: HeroBlockItem = {
+	id: 14,
+	titolo: 'Analisi professionale della tua <span>cartella esattoriale</span>',
+	sottotitolo:
+		"Con una quota di 99€, entro 2 giorni lavorativi riceverai nella tua area riservata l'esito dell'analisi in PDF, certificato dallo Studio Legale, con la verifica di correttezza della cartella e indicazioni chiare su come procedere.",
+	paragrafo: '',
+	label: 'Partecipa >',
+	href: '/partecipa',
+	immagine: '9e4fa297-2d00-44be-862d-db3071894391',
+	inverti: false,
+	background_color: '',
+};
 
 function resolveImageSrc(value: string) {
 	if (!value) return '';
@@ -59,12 +83,21 @@ const showPageHeader = page ? !page.hide_page_header : false;
 	{page && (
 		<div class="partecipa_preheader">
 			<div class="partecipa_preheader_inner">
-				<div class="partecipa_preheader_content">
-					{preHeaderTitle && <h2>{preHeaderTitle}</h2>}
-					{preHeaderDescription && <p>{preHeaderDescription}</p>}
-				</div>
+				<section id="block-hero-block-14-2" class="editor_block editor_block_hero_block">
+					<HeroBlock
+						item={String(homeHero14.id ?? '14')}
+						titolo={homeHero14.titolo}
+						sottotitolo={homeHero14.sottotitolo}
+						paragrafo={homeHero14.paragrafo}
+						label={homeHero14.label}
+						href={homeHero14.href}
+						immagine={homeHero14.immagine}
+						inverti={homeHero14.inverti}
+						background_color={homeHero14.background_color}
+					/>
+				</section>
 				<div class="partecipa_preheader_form">
-					<PartecipaForm />
+					<PartecipaForm title="Controlla la tua cartella con un supporto legale qualificato a soli 99€" />
 				</div>
 			</div>
 		</div>
@@ -73,7 +106,7 @@ const showPageHeader = page ? !page.hide_page_header : false;
 		titolo="Cosa dicono i clienti"
 		sottotitolo="Recensioni Google di Studio Legale Portantiolo & Partners"
 		google_business_query="Studio Legale Portantiolo & Partners"
-		numero_recensioni={9}
+		numero_recensioni={6}
 	/>
 
 	{showPageHeader && (
@@ -99,7 +132,6 @@ const showPageHeader = page ? !page.hide_page_header : false;
 <style>
 	.partecipa_preheader {
 		background: var(--grigio-chiaro);
-		padding: 40px 0;
 	}
 
 	.partecipa_preheader_inner {
@@ -112,19 +144,45 @@ const showPageHeader = page ? !page.hide_page_header : false;
 		align-items: start;
 	}
 
-	.partecipa_preheader_content h2 {
-		margin: 0 0 16px;
-		font-size: 52px;
+	#block-hero-block-14-2 {
+		min-width: 0;
 	}
 
-	.partecipa_preheader_content p {
+
+
+	#block-hero-block-14-2 :global(.hero_block) {
 		margin: 0;
-		font-size: 18px;
-		line-height: 1.6;
+		max-width: 100%;
+		flex-direction: column-reverse;
+	}
+
+	#block-hero-block-14-2 :global(.hero_button) {
+		display: none !important;
 	}
 
 	.partecipa_preheader_form {
 		min-width: 0;
+	}
+
+	.partecipa_preheader_form :global(.contact_form) {
+		position: relative;
+		margin-top: 22px;
+	}
+
+	.partecipa_preheader_form :global(.contact_form)::before {
+		content: 'Promozione valida fino al 31/03';
+		position: absolute;
+		top: -14px;
+		left: 20px;
+		background: var(--primary);
+		color: #fff;
+		font-family: var(--font-heading);
+		font-size: 18px;
+		letter-spacing: 0.03em;
+		padding: 6px 14px;
+		border-radius: 999px;
+		line-height: 1;
+		z-index: 2;
 	}
 
 	@media (max-width: 980px) {
@@ -132,8 +190,5 @@ const showPageHeader = page ? !page.hide_page_header : false;
 			grid-template-columns: 1fr;
 		}
 
-		.partecipa_preheader_content h2 {
-			font-size: 40px;
-		}
 	}
 </style>

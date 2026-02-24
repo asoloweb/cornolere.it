@@ -7,7 +7,7 @@ interface Props {
 
 const { title = 'Partecipa' } = Astro.props;
 
-const priceValue = import.meta.env.PUBLIC_PARTECIPA_PRICE ?? '110';
+const priceValue = import.meta.env.PUBLIC_PARTECIPA_PRICE ?? '99';
 const priceLabel = priceValue.includes('€') ? priceValue : `${priceValue}€`;
 const stripePublishableKey = import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY ?? '';
 const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL || import.meta.env.DIRECTUS_URL || DIRECTUS_URL;
@@ -63,6 +63,15 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL || import.meta.env.DIREC
 			<span>Dati carta di credito</span>
 			<div id="card-element" class="stripe_card"></div>
 			<small class="stripe_help">I pagamenti sono gestiti in sicurezza da Stripe.</small>
+			<span class="stripe_trust_badge" aria-hidden="true">
+				<svg viewBox="0 0 24 24" width="14" height="14" focusable="false" aria-hidden="true">
+					<path
+						fill="currentColor"
+						d="M17 10h-1V8a4 4 0 1 0-8 0v2H7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2Zm-7-2a2 2 0 1 1 4 0v2h-4V8Zm7 11H7v-7h10v7Z"
+					/>
+				</svg>
+				<span>Powered by <strong>Stripe</strong></span>
+			</span>
 			<p class="stripe_error" role="alert"></p>
 		</label>
 
@@ -80,9 +89,12 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL || import.meta.env.DIREC
 			</span>
 		</label>
 
-		<p class="contact_form_price">Prezzo: {priceLabel}</p>
+		<p class="contact_form_price" aria-label={`Prezzo totale ${priceLabel}`}>
+			<span class="contact_form_price_label">Totale</span>
+			<strong class="contact_form_price_value">{priceLabel}</strong>
+		</p>
 
-		<button class="contact_form_submit MainButton" type="submit">PAGA ORA</button>
+		<button class="contact_form_submit MainButton" type="submit">Procedi al pagamento sicuro</button>
 		<p class="contact_form_status" role="status" aria-live="polite"></p>
 	</form>
 </section>
@@ -297,10 +309,10 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL || import.meta.env.DIREC
 
 <style>
 	.contact_form {
-		background: var(--bianco);
+		background: var(--nero);
 		border-radius: 24px;
 		padding: 28px;
-		color: var(--nero);
+		color: var(--bianco);
 	}
 
 	.contact_form_title {
@@ -340,6 +352,24 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL || import.meta.env.DIREC
 		color: #666;
 	}
 
+	.stripe_trust_badge {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		width: fit-content;
+		font-size: 12px;
+		color: #3c4257;
+		background: #eef2ff;
+		border: 1px solid #dbe3ff;
+		border-radius: 999px;
+		padding: 4px 10px;
+	}
+
+	.stripe_trust_badge strong {
+		color: #635bff;
+		font-weight: 700;
+	}
+
 	.stripe_error {
 		margin: 6px 0 0;
 		color: #b42318;
@@ -366,20 +396,45 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL || import.meta.env.DIREC
 	}
 
 	.contact_form_price {
-		margin: 6px 0 0;
-		font-size: 16px;
-		font-weight: 600;
+		margin: 10px 0 0;
+		padding: 14px 16px;
+		border: 1px solid #e4e7ec;
+		border-radius: 14px;
+		background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+		display: grid;
+		grid-template-columns: 1fr auto;
+		gap: 2px 10px;
+		align-items: center;
 	}
 
-	.contact_form_submit {
+	.contact_form_price_label {
+		font-size: 12px;
+		font-weight: 700;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: #667085;
+	}
+
+	.contact_form_price_value {
+		font-size: 26px;
+		line-height: 1;
+		font-weight: 800;
+		color: #101828;
+	}
+
+	.contact_form_submit.MainButton {
 		margin-top: 6px;
 		border: 0;
 		border-radius: 999px;
-		padding: 12px 18px;
+		min-width: 0 !important;
+		width:100%;
+		height:80px;
+		font-size:35px;
+		padding: 12px 18px !important;
 		background: var(--primary);
 		color: var(--bianco);
 		font-family: var(--font-heading);
-		font-size: 16px;
+		text-align: center;
 		cursor: pointer;
 		transition: transform 180ms ease, opacity 180ms ease;
 	}

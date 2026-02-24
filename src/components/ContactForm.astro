@@ -16,8 +16,6 @@ const webhookUrl = import.meta.env.PUBLIC_DIRECTUS_WEBHOOK_RICHIESTE
 ---
 
 <section class="contact_form">
-	<h2 class="contact_form_title">{title}</h2>
-
 	<form class="contact_form_form" method="post" data-webhook-url={webhookUrl}>
 		<label class="contact_form_field">
 			<span>Ragione sociale</span>
@@ -147,15 +145,10 @@ const webhookUrl = import.meta.env.PUBLIC_DIRECTUS_WEBHOOK_RICHIESTE
 
 <style>
 	.contact_form {
-		background: var(--bianco);
+		background: var(--nero);
 		border-radius: 24px;
 		padding: 28px;
-		color: var(--nero);
-	}
-
-	.contact_form_title {
-		margin: 0 0 18px;
-		font-size: 28px;
+		color: var(--bianco);
 	}
 
 	.contact_form_form {
@@ -202,15 +195,18 @@ const webhookUrl = import.meta.env.PUBLIC_DIRECTUS_WEBHOOK_RICHIESTE
 		text-decoration: underline;
 	}
 
-	.contact_form_submit {
+	.contact_form_submit.MainButton {
 		margin-top: 6px;
 		border: 0;
+		width:100%;
 		border-radius: 999px;
-		padding: 12px 18px;
+		min-width: 0 !important;
+		padding: 12px 18px !important;
 		background: var(--primary);
 		color: var(--bianco);
 		font-family: var(--font-heading);
 		font-size: 16px;
+		text-align: center;
 		cursor: pointer;
 		transition: transform 180ms ease, opacity 180ms ease;
 	}

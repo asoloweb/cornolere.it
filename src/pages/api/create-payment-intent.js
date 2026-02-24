@@ -12,7 +12,7 @@ export async function POST({ request }) {
 
 		const body = await request.json().catch(() => ({}));
 		const priceFromEnv = Number(env.PARTECIPA_PRICE_CENTS || 0);
-		const priceFromPublic = Number(env.PUBLIC_PARTECIPA_PRICE || 110);
+		const priceFromPublic = Number(env.PUBLIC_PARTECIPA_PRICE || 99);
 		const amount = Number.isFinite(priceFromEnv) && priceFromEnv > 0
 			? Math.round(priceFromEnv)
 			: Math.round(priceFromPublic * 100);

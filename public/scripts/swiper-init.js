@@ -19,17 +19,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (el.classList.contains('google_reviews_slider')) {
       options.autoHeight = true;
+      options.slidesPerView = 1;
+      options.slidesPerGroup = 1;
       options.autoplay = {
-        delay: 3500,
+        delay: 3200,
         disableOnInteraction: false,
+        pauseOnMouseEnter: true,
       };
       options.breakpoints = {
         640: {
           slidesPerView: 2,
+          slidesPerGroup: 1,
           spaceBetween: 20,
         },
         900: {
           slidesPerView: 3,
+          slidesPerGroup: 1,
           spaceBetween: 24,
         },
       };

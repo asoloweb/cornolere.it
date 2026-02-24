@@ -19,6 +19,17 @@ interface GooglePlaceDetails {
 	url?: string;
 }
 
+interface PlaceIdCacheEntry {
+	placeId: string;
+	expiresAt: number;
+}
+
+interface ReviewsCacheEntry {
+	placeDetails: GooglePlaceDetails;
+	reviews: GoogleReview[];
+	expiresAt: number;
+}
+
 interface Props {
 	titolo?: string;
 	sottotitolo?: string;
@@ -41,7 +52,27 @@ const {
 
 const apiKey = import.meta.env.GOOGLE_MAPS_API_KEY || import.meta.env.GOOGLE_PLACES_API_KEY;
 const maxReviews = Math.min(10, Math.max(1, Number(numero_recensioni) || 6));
-const placeQuery = String(google_business_query || 'Studio Legale Portantiolo & Partners').trim();
+const placeQuery = String(
+	google_business_query || import.meta.env.GOOGLE_BUSINESS_QUERY || 'Studio Legale Portantiolo & Partners'
+).trim();
+const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+
+const cacheStoreKey = '__googleReviewsCacheStore__';
+const cacheStore =
+	((globalThis as any)[cacheStoreKey] as
+		| {
+				placeIdByQuery: Map<string, PlaceIdCacheEntry>;
+				reviewsByPlaceId: Map<string, ReviewsCacheEntry>;
+		  }
+		| undefined) ||
+	(() => {
+		const store = {
+			placeIdByQuery: new Map<string, PlaceIdCacheEntry>(),
+			reviewsByPlaceId: new Map<string, ReviewsCacheEntry>(),
+		};
+		(globalThis as any)[cacheStoreKey] = store;
+		return store;
+	})();
 
 let placeId = String(google_place_id || import.meta.env.GOOGLE_MYBUSINESS_PLACE_ID || '').trim();
 let placeDetails: GooglePlaceDetails | null = null;
@@ -83,6 +114,11 @@ async function fetchJson(url: string) {
 
 async function resolvePlaceId(input: string) {
 	if (!apiKey || !input) return '';
+	const normalized = input.trim().toLowerCase();
+	const cached = cacheStore.placeIdByQuery.get(normalized);
+	if (cached && cached.expiresAt > Date.now()) {
+		return cached.placeId;
+	}
 	const url = new URL('https://maps.googleapis.com/maps/api/place/findplacefromtext/json');
 	url.searchParams.set('input', input);
 	url.searchParams.set('inputtype', 'textquery');
@@ -92,7 +128,14 @@ async function resolvePlaceId(input: string) {
 
 	const data = await fetchJson(url.toString());
 	if (data?.status !== 'OK') return '';
-	return data?.candidates?.[0]?.place_id || '';
+	const foundPlaceId = data?.candidates?.[0]?.place_id || '';
+	if (foundPlaceId) {
+		cacheStore.placeIdByQuery.set(normalized, {
+			placeId: foundPlaceId,
+			expiresAt: Date.now() + CACHE_TTL_MS,
+		});
+	}
+	return foundPlaceId;
 }
 
 async function fetchPlaceDetails(inputPlaceId: string) {
@@ -115,13 +158,24 @@ if (apiKey) {
 			placeId = await resolvePlaceId(placeQuery);
 		}
 		if (placeId) {
-			placeDetails = await fetchPlaceDetails(placeId);
-			reviews = Array.isArray(placeDetails?.reviews)
-				? [...placeDetails.reviews]
-						.filter((review) => Boolean(review?.text))
-						.sort((a, b) => (b.time || 0) - (a.time || 0))
-						.slice(0, maxReviews)
-				: [];
+			const cachedReviews = cacheStore.reviewsByPlaceId.get(placeId);
+			if (cachedReviews && cachedReviews.expiresAt > Date.now()) {
+				placeDetails = cachedReviews.placeDetails;
+				reviews = cachedReviews.reviews.slice(0, maxReviews);
+			} else {
+				placeDetails = await fetchPlaceDetails(placeId);
+				const sortedReviews = Array.isArray(placeDetails?.reviews)
+					? [...placeDetails.reviews].sort((a, b) => (b.time || 0) - (a.time || 0))
+					: [];
+				reviews = sortedReviews.slice(0, maxReviews);
+				if (placeDetails) {
+					cacheStore.reviewsByPlaceId.set(placeId, {
+						placeDetails,
+						reviews: sortedReviews,
+						expiresAt: Date.now() + CACHE_TTL_MS,
+					});
+				}
+			}
 		}
 	} catch (error) {
 		console.error('Errore nel caricamento recensioni Google:', error);
@@ -143,6 +197,11 @@ const googleStarSrc = 'https://cdn.trustindex.io/assets/platform/Google/star/f.s
 function reviewStars(value: number | undefined) {
 	const rounded = Math.min(5, Math.max(0, Math.round(Number(value) || 0)));
 	return `${'★'.repeat(rounded)}${'☆'.repeat(5 - rounded)}`;
+}
+
+function avatarSrc(value: string | undefined) {
+	if (!value) return '';
+	return `/api/google-avatar?u=${encodeURIComponent(value)}`;
 }
 
 function formatFullDate(value: number | undefined) {
@@ -195,19 +254,21 @@ function formatFullDate(value: number | undefined) {
 									<div class="ti-platform-icon" title="Pubblicato su Google">
 										<img src={googleIconSrc} alt="Google" width="20" height="20" loading="lazy" />
 									</div>
-									<div class="ti-profile-img">
+									<div class={`ti-profile-img ${review.profile_photo_url ? '' : 'is-fallback'}`}>
 										{review.profile_photo_url ? (
 											<img
 												class="google_review_avatar"
-												src={review.profile_photo_url}
+												src={avatarSrc(review.profile_photo_url)}
 												alt={`${review.author_name || 'Utente Google'} profile picture`}
+												referrerpolicy="no-referrer"
+												decoding="async"
 												loading="lazy"
+												onerror="this.parentElement?.setAttribute('data-avatar-fallback','true')"
 											/>
-										) : (
-											<div class="ti-avatar-fallback" aria-hidden="true">
-												{(review.author_name || 'U').slice(0, 1).toUpperCase()}
-											</div>
-										)}
+										) : null}
+										<div class="ti-avatar-fallback" aria-hidden="true">
+											{(review.author_name || 'U').slice(0, 1).toUpperCase()}
+										</div>
 									</div>
 									<div class="ti-profile-details">
 										<div class="ti-name">{review.author_name || 'Utente Google'}</div>
@@ -234,17 +295,14 @@ function formatFullDate(value: number | undefined) {
 										/>
 									))}
 								</span>
-								<details class="ti-read-more-wrap">
-									<summary class="ti-read-more">Leggi di piu</summary>
-									<div class="ti-review-text-container ti-review-content">{review.text}</div>
-								</details>
+								<div class="ti-review-text-container ti-review-content">
+									{review.text?.trim() || 'Recensione senza commento testuale.'}
+								</div>
 							</div>
 						</article>
 					))}
 				</div>
 				{hasMultipleSlides && <div class="swiper-pagination"></div>}
-				{hasMultipleSlides && <div class="swiper-button-prev"></div>}
-				{hasMultipleSlides && <div class="swiper-button-next"></div>}
 			</div>
 		</div>
 	</section>
@@ -273,7 +331,7 @@ function formatFullDate(value: number | undefined) {
 
 	.google_reviews_title {
 		margin: 0;
-		font-size: 42px;
+		font-size: 60px;
 		line-height: 1.1;
 	}
 
@@ -306,6 +364,7 @@ function formatFullDate(value: number | undefined) {
 		margin-top: 10px;
 		font-weight: 700;
 		text-decoration: underline;
+		color:var(--primary);
 	}
 
 	.google_reviews_slider {
@@ -340,6 +399,12 @@ function formatFullDate(value: number | undefined) {
 		align-items: center;
 	}
 
+	.ti-profile-img {
+		width: 48px;
+		height: 48px;
+		position: relative;
+	}
+
 	.ti-profile-details {
 		min-width: 0;
 	}
@@ -372,31 +437,12 @@ function formatFullDate(value: number | undefined) {
 		line-height: 1.6;
 	}
 
-	.ti-read-more-wrap {
-		margin-top: 8px;
-	}
-
-	.ti-read-more {
-		font-weight: 700;
-		cursor: pointer;
-	}
-
-	.ti-read-more-wrap .ti-review-content {
-		display: -webkit-box;
-		-webkit-line-clamp: 4;
-		-webkit-box-orient: vertical;
-		overflow: hidden;
-	}
-
-	.ti-read-more-wrap[open] .ti-review-content {
-		display: block;
-	}
-
 	.google_review_avatar {
 		width: 48px;
 		height: 48px;
 		border-radius: 999px;
 		object-fit: cover;
+		display: block;
 	}
 
 	.google_review_author {
@@ -408,10 +454,20 @@ function formatFullDate(value: number | undefined) {
 		width: 48px;
 		height: 48px;
 		border-radius: 999px;
-		display: grid;
+		display: none;
 		place-items: center;
 		font-weight: 700;
 		background: #f0f0f0;
+	}
+
+	.ti-profile-img[data-avatar-fallback='true'] .google_review_avatar,
+	.ti-profile-img.is-fallback .google_review_avatar {
+		display: none;
+	}
+
+	.ti-profile-img[data-avatar-fallback='true'] .ti-avatar-fallback,
+	.ti-profile-img.is-fallback .ti-avatar-fallback {
+		display: grid;
 	}
 
 	.google_review_stars {

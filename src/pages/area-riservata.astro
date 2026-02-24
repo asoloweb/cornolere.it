@@ -21,6 +21,7 @@ const directusUrl =
 					<input name="password" type="password" autocomplete="current-password" required />
 				</label>
 				<button type="submit">Accedi</button>
+				<a class="area_register" href="/partecipa">Registrati</a>
 				<p class="area_status" role="status" aria-live="polite"></p>
 			</form>
 		</div>
@@ -391,16 +392,52 @@ const directusUrl =
 		padding: 32px;
 	}
 
+	.area_login {
+		max-width: 560px;
+		margin: 0 auto;
+		width: 100%;
+		background:
+			radial-gradient(circle at top right, rgba(255, 94, 0, 0.15), transparent 45%),
+			var(--grigio-chiaro);
+		border: 1px solid #e8e8e8;
+	}
+
+	.area_login h1 {
+		margin: 0 0 8px;
+		font-size: 56px;
+		line-height: 0.95;
+	}
+
+	.area_login > p {
+		margin: 0 0 18px;
+		font-size: 17px;
+		line-height: 1.45;
+		max-width: 45ch;
+	}
+
 	.area_form {
 		display: grid;
 		gap: 14px;
-		max-width: 420px;
+		width: 100%;
+		background: #fff;
+		border-radius: 18px;
+		padding: 18px;
+		border: 1px solid #ececec;
+		box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
 	}
 
 	.area_form label {
 		display: flex;
 		flex-direction: column;
 		gap: 6px;
+	}
+
+	.area_form label > span {
+		font-size: 13px;
+		font-weight: 700;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+		color: #555;
 	}
 
 	.area_pratica_selector label {
@@ -426,6 +463,16 @@ const directusUrl =
 		border-radius: 12px;
 		padding: 12px 14px;
 		font: inherit;
+		background: #fff;
+		transition: border-color 160ms ease, box-shadow 160ms ease;
+	}
+
+	.area_form input:focus,
+	.area_form textarea:focus,
+	.area_card textarea:focus {
+		outline: 0;
+		border-color: var(--primary);
+		box-shadow: 0 0 0 3px rgba(255, 94, 0, 0.15);
 	}
 
 	.area_form button,
@@ -437,7 +484,34 @@ const directusUrl =
 		background: var(--primary);
 		color: var(--bianco);
 		font-family: var(--font-heading);
+		font-size: 22px;
+		letter-spacing: 0.02em;
 		cursor: pointer;
+		transition: transform 160ms ease, opacity 160ms ease;
+	}
+
+	.area_register {
+		display: inline-flex;
+		justify-content: center;
+		align-items: center;
+		border: 0;
+		border-radius: 999px;
+		padding: 12px 18px;
+		color: #fff;
+		font-family: var(--font-heading);
+		font-size: 22px;
+		letter-spacing: 0.02em;
+		background: var(--nero);
+		text-decoration: none;
+		transition: transform 160ms ease, opacity 160ms ease;
+	}
+
+	.area_form button:hover,
+	.area_register:hover,
+	.area_submit:hover,
+	.area_logout:hover {
+		transform: translateY(-2px);
+		opacity: 0.95;
 	}
 
 	.area_dashboard {
@@ -500,5 +574,15 @@ const directusUrl =
 	.area_status {
 		font-size: 14px;
 		min-height: 20px;
+	}
+
+	@media (max-width: 768px) {
+		.area_login {
+			padding: 22px;
+		}
+
+		.area_login h1 {
+			font-size: 42px;
+		}
 	}
 </style>

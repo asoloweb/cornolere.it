@@ -52,10 +52,10 @@ const directusUrl =
 				<textarea id="pratica-descrizione" rows="6" placeholder="Descrivi la pratica..."></textarea>
 			</div>
 
-			<div class="area_card">
+			<div class="area_card area_card_documents">
 				<h2>Documenti</h2>
 				<p class="area_hint">Carica PDF, JPG o PNG (max 15MB).</p>
-				<input id="file-input" type="file" accept=".pdf,.jpg,.jpeg,.png" multiple />
+				<input id="file-input" class="area_file_input" type="file" accept=".pdf,.jpg,.jpeg,.png" multiple />
 				<ul class="file_list" id="file-list"></ul>
 			</div>
 
@@ -164,6 +164,7 @@ const directusUrl =
 		fileList.innerHTML = '';
 		if (!files || !files.length) {
 			const empty = document.createElement('li');
+			empty.className = 'file_item_empty';
 			empty.textContent = 'Nessun file caricato.';
 			fileList.appendChild(empty);
 			return;
@@ -172,11 +173,14 @@ const directusUrl =
 			const file = fileRel && fileRel.directus_files_id ? fileRel.directus_files_id : null;
 			if (!file) return;
 			const item = document.createElement('li');
-			item.innerHTML = `<span>${file.filename_download || 'file'}</span>`;
+			const filename = document.createElement('span');
+			filename.className = 'file_name';
+			filename.textContent = file.filename_download || 'file';
 			const delBtn = document.createElement('button');
 			delBtn.type = 'button';
 			delBtn.textContent = 'Elimina';
 			delBtn.addEventListener('click', () => deleteFile(fileRel.id, file.id));
+			item.appendChild(filename);
 			item.appendChild(delBtn);
 			fileList.appendChild(item);
 		});
@@ -535,6 +539,48 @@ const directusUrl =
 		background: var(--bianco);
 		border-radius: 20px;
 		padding: 20px;
+		border: 1px solid #ececec;
+	}
+
+	.area_card_documents {
+		background:
+			linear-gradient(180deg, #ffffff 0%, #fbfbfb 100%);
+	}
+
+	.area_card_documents h2 {
+		margin: 0 0 4px;
+	}
+
+	.area_hint {
+		margin: 0 0 14px;
+		font-size: 14px;
+		color: #5b6472;
+	}
+
+	.area_file_input {
+		width: 100%;
+		border: 1px dashed #cfd6e4;
+		border-radius: 14px;
+		padding: 10px;
+		background: #f7f9fc;
+		color: #212b36;
+		font: inherit;
+	}
+
+	.area_file_input::file-selector-button {
+		border: 0;
+		border-radius: 999px;
+		padding: 8px 14px;
+		background: var(--primary);
+		color: #fff;
+		font-family: var(--font-heading);
+		font-size: 16px;
+		cursor: pointer;
+		margin-right: 10px;
+	}
+
+	.area_file_input:hover {
+		border-color: #b9c4d8;
 	}
 
 	.file_list {
@@ -550,18 +596,54 @@ const directusUrl =
 		justify-content: space-between;
 		align-items: center;
 		gap: 12px;
-		background: #fff;
-		border-radius: 12px;
-		padding: 10px 12px;
+		background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+		border-radius: 14px;
+		padding: 12px 14px;
+		border: 1px solid #dde3ec;
+		box-shadow: 0 4px 14px rgba(17, 24, 39, 0.05);
+		transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+	}
+
+	.file_list li:hover {
+		transform: translateY(-1px);
+		border-color: #c9d3e3;
+		box-shadow: 0 8px 18px rgba(17, 24, 39, 0.08);
+	}
+
+	.file_name {
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		font-weight: 600;
+		color: #1f2937;
+		line-height: 1.25;
+	}
+
+	.file_item_empty {
+		justify-content: flex-start !important;
+		color: #667085;
+		font-style: italic;
+		background: #f8fafc !important;
+		box-shadow: none !important;
 	}
 
 	.file_list button {
 		border: 0;
-		background: #ef4444;
+		background: #111827;
 		color: #fff;
 		border-radius: 999px;
 		padding: 6px 12px;
 		cursor: pointer;
+		font-size: 13px;
+		font-weight: 600;
+		letter-spacing: 0.01em;
+		transition: opacity 140ms ease, transform 140ms ease;
+	}
+
+	.file_list button:hover {
+		opacity: 0.9;
+		transform: translateY(-1px);
 	}
 
 	.area_check {

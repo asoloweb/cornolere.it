@@ -353,6 +353,10 @@ a {
   text-align: center;
 }
 
+#pratica-descrizione {
+  width:100%;
+}
+
 @media (max-width: 640px) {
 
   .page_header_inner h1 {

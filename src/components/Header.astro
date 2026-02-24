@@ -187,11 +187,24 @@ function getMenuItemIdClass(item: MenuItem, index: number) {
 (() => {
 	const button = document.querySelector('.hamburger_button');
 	const menu = document.querySelector('.MenuItemsContainer');
+	const header = document.querySelector('.site-header');
 	if (!button || !menu) return;
 	button.addEventListener('click', () => {
 		const isOpen = menu.classList.toggle('is-open');
 		button.classList.toggle('is-active', isOpen);
 		button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
 	});
+
+	if (!header) return;
+
+	const setSticky = () => {
+		const shouldStick = window.scrollY > 10;
+		header.classList.toggle('is-sticky', shouldStick);
+		document.body.style.paddingTop = shouldStick ? `${header.offsetHeight}px` : '';
+	};
+
+	setSticky();
+	window.addEventListener('scroll', setSticky, { passive: true });
+	window.addEventListener('resize', setSticky);
 })();
 </script>

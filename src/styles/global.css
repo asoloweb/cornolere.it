@@ -372,6 +372,16 @@ a {
 
 @media (max-width: 640px) {
 
+  .MenuLogo {
+    height: 60px !important;
+  }
+
+  .site-header {
+    height:auto;
+    margin-top:10px;
+    margin-bottom:20px;
+  }
+
   .page_header_inner h1 {
     font-size:44px !important;
   }
@@ -442,10 +452,18 @@ a {
     z-index: 99999999;
     padding: 20px;
     border-radius: 20px;
-    top: 210px;
+    top: 160px;
     width: calc(100% - 20px);
     left: 10px;
     color: var(--primary);
+  }
+
+  .page_header {
+    min-height: 220px;
+  }
+
+  .site-header.is-sticky .MenuItemsContainer {
+    top:100px;
   }
 
   .MenuItemsContainer a {

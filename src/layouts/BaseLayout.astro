@@ -75,6 +75,18 @@ const absoluteLogoUrl = (() => {
 	}
 })();
 
+function getFaviconMimeType(src: string) {
+	const cleanedSrc = src.split('?')[0].split('#')[0].toLowerCase();
+	if (cleanedSrc.endsWith('.svg')) return 'image/svg+xml';
+	if (cleanedSrc.endsWith('.png')) return 'image/png';
+	if (cleanedSrc.endsWith('.webp')) return 'image/webp';
+	if (cleanedSrc.endsWith('.jpg') || cleanedSrc.endsWith('.jpeg')) return 'image/jpeg';
+	if (cleanedSrc.endsWith('.ico')) return 'image/x-icon';
+	return undefined;
+}
+
+const faviconMimeType = getFaviconMimeType(logoLightSrc);
+
 const organizationId = `${siteUrl}/#organization`;
 const legalServiceId = `${siteUrl}/#legalservice`;
 const organizationJsonLd = JSON.stringify(
@@ -120,8 +132,9 @@ const organizationJsonLd = JSON.stringify(
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href={logoLightSrc} />
-		<link rel="icon" href={logoLightSrc} />
+		<link rel="icon" type={faviconMimeType} href={logoLightSrc} />
+		<link rel="shortcut icon" type={faviconMimeType} href={logoLightSrc} />
+		<link rel="apple-touch-icon" href={logoLightSrc} />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="theme-color" content="#000000" />
 		<meta name="generator" content={Astro.generator} />

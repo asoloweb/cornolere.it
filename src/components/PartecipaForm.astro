@@ -9,7 +9,10 @@ const { title = 'Partecipa' } = Astro.props;
 
 const priceValue = import.meta.env.PUBLIC_PARTECIPA_PRICE ?? '99';
 const priceLabel = priceValue.includes('€') ? priceValue : `${priceValue}€`;
-const stripePublishableKey = import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY ?? '';
+const stripePublishableKey =
+	import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY ??
+	import.meta.env.STRIPE_PUBLISHABLE_KEY ??
+	'';
 const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL || import.meta.env.DIRECTUS_URL || DIRECTUS_URL;
 ---
 
@@ -117,7 +120,7 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL || import.meta.env.DIREC
 		if (!stripeKey) {
 			if (statusEl) {
 				statusEl.textContent =
-					'Stripe non configurato. Imposta PUBLIC_STRIPE_PUBLISHABLE_KEY.';
+					'Stripe non configurato. Imposta PUBLIC_STRIPE_PUBLISHABLE_KEY (o STRIPE_PUBLISHABLE_KEY).';
 				statusEl.dataset.state = 'error';
 			}
 			if (submitButton instanceof HTMLButtonElement) {

@@ -38,6 +38,50 @@ function normalizeAccordionItems(input: AccordionRelation[] | SingleAccordionIte
 }
 
 const items = normalizeAccordionItems(accordion);
+
+function stripHtml(value: string) {
+	return value
+		.replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '')
+		.replace(/<style[\s\S]*?>[\s\S]*?<\/style>/gi, '')
+		.replace(/<[^>]+>/g, ' ')
+		.replace(/&nbsp;/gi, ' ')
+		.replace(/&amp;/gi, '&')
+		.replace(/&quot;/gi, '"')
+		.replace(/&#39;/gi, "'")
+		.replace(/&lt;/gi, '<')
+		.replace(/&gt;/gi, '>')
+		.replace(/\s+/g, ' ')
+		.trim();
+}
+
+const faqMainEntity = items
+	.map((item, index) => {
+		const question = stripHtml(item.titolo || `Voce ${index + 1}`);
+		const answer = stripHtml(item.descrizione || '');
+		if (!question || !answer) return null;
+		return {
+			'@type': 'Question',
+			name: question,
+			acceptedAnswer: {
+				'@type': 'Answer',
+				text: answer,
+			},
+		};
+	})
+	.filter(Boolean);
+
+const faqJsonLd =
+	faqMainEntity.length > 0
+		? JSON.stringify(
+				{
+					'@context': 'https://schema.org',
+					'@type': 'FAQPage',
+					mainEntity: faqMainEntity,
+				},
+				null,
+				2
+		  )
+		: '';
 ---
 
 <section class="accordion_block" data-aos="fade-up" data-aos-duration="1500">
@@ -46,17 +90,21 @@ const items = normalizeAccordionItems(accordion);
 
 		{items.length > 0 && (
 			<div class="accordion_items">
-				{items.map((item, index) => (
-					<details class="accordion_item" open={item.Espanso === true}>
-						<summary class="accordion_summary">
-							<span class="accordion_icon" aria-hidden="true">+</span>
-							<span class="accordion_item_title" set:html={item.titolo || `Voce ${index + 1}`} />
-						</summary>
-						<div class="accordion_content">
-							<div set:html={item.descrizione || ''} />
-						</div>
-					</details>
-				))}
+				{items.map((item, index) => {
+					const itemId = item.id != null ? String(item.id) : `faq-${index + 1}`;
+					const panelId = `accordion-panel-${itemId}`;
+					return (
+						<details class="accordion_item" open={item.Espanso === true}>
+							<summary class="accordion_summary" aria-controls={panelId}>
+								<span class="accordion_icon" aria-hidden="true">+</span>
+								<span class="accordion_item_title" set:html={item.titolo || `Voce ${index + 1}`} />
+							</summary>
+							<div class="accordion_content" id={panelId}>
+								<div set:html={item.descrizione || ''} />
+							</div>
+						</details>
+					);
+				})}
 			</div>
 		)}
 
@@ -67,6 +115,7 @@ const items = normalizeAccordionItems(accordion);
 		)}
 	</div>
 </section>
+{faqJsonLd && <script type="application/ld+json" set:html={faqJsonLd}></script>}
 
 <style>
 	.accordion_block {

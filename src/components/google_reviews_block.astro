@@ -245,7 +245,11 @@ function formatFullDate(value: number | undefined) {
 				</div>
 			</div>
 
-			<div class="google_reviews_slider slider_block swiper" id={sliderId}>
+			<div
+				class="google_reviews_slider slider_block swiper"
+				id={sliderId}
+				data-swiper-enabled={hasMultipleSlides ? 'true' : 'false'}
+			>
 				<div class="swiper-wrapper">
 					{cardsToRender.map((review) => (
 						<article class="swiper-slide single_slide google_review_slide">

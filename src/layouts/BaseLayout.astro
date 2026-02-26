@@ -12,6 +12,32 @@ export interface Props {
 
 const { title, seoTitle, seoDescription } = Astro.props;
 const resolvedTitle = seoTitle || title;
+const shouldLoadThirdPartyScripts = !import.meta.env.DEV;
+const siteUrl = (import.meta.env.PUBLIC_SITE_URL || 'https://controllocartellesattoriali.it').replace(/\/+$/, '');
+const organizationName =
+	import.meta.env.PUBLIC_ORGANIZATION_NAME || 'Controllo Cartelle Esattoriali';
+const organizationEmail =
+	import.meta.env.PUBLIC_ORGANIZATION_EMAIL || 'info@controllocartellesattoriali.it';
+const organizationPhone =
+	import.meta.env.PUBLIC_ORGANIZATION_PHONE || '+39 0423 223322';
+const organizationStreetAddress =
+	import.meta.env.PUBLIC_ORGANIZATION_STREET || 'Strada Comunale Delle Corti, 61';
+const organizationLocality =
+	import.meta.env.PUBLIC_ORGANIZATION_CITY || 'Treviso';
+const organizationCountry =
+	import.meta.env.PUBLIC_ORGANIZATION_COUNTRY || 'IT';
+const organizationAreaServed =
+	import.meta.env.PUBLIC_ORGANIZATION_AREA_SERVED || 'IT';
+const organizationSameAs = (import.meta.env.PUBLIC_ORGANIZATION_SAME_AS || '')
+	.split(',')
+	.map((entry) => entry.trim())
+	.filter(Boolean);
+const umamiScriptSrc = import.meta.env.PUBLIC_UMAMI_SCRIPT_SRC || 'https://umami.asoloweb.it/script.js';
+const umamiWebsiteId =
+	import.meta.env.PUBLIC_UMAMI_WEBSITE_ID || '517b6a8c-733f-4d9f-a924-17c001c2806d';
+const cookieFirstSiteId =
+	import.meta.env.PUBLIC_COOKIEFIRST_SITE_ID ||
+	'controllocartellesattoriali.it-ab8997c4-07b9-4efd-ae2b-8e8a064a7ed1';
 
 function resolveImageSrc(value: string) {
 	if (!value) return '';
@@ -40,6 +66,55 @@ try {
 } catch (error) {
 	console.error('Error fetching options for favicon:', error);
 }
+
+const absoluteLogoUrl = (() => {
+	try {
+		return new URL(logoLightSrc, siteUrl).toString();
+	} catch {
+		return logoLightSrc;
+	}
+})();
+
+const organizationId = `${siteUrl}/#organization`;
+const legalServiceId = `${siteUrl}/#legalservice`;
+const organizationJsonLd = JSON.stringify(
+	{
+		'@context': 'https://schema.org',
+		'@graph': [
+			{
+				'@type': 'Organization',
+				'@id': organizationId,
+				name: organizationName,
+				url: siteUrl,
+				logo: absoluteLogoUrl,
+				email: organizationEmail,
+				telephone: organizationPhone,
+				sameAs: organizationSameAs,
+			},
+			{
+				'@type': 'LegalService',
+				'@id': legalServiceId,
+				name: organizationName,
+				url: siteUrl,
+				image: absoluteLogoUrl,
+				telephone: organizationPhone,
+				email: organizationEmail,
+				address: {
+					'@type': 'PostalAddress',
+					streetAddress: organizationStreetAddress,
+					addressLocality: organizationLocality,
+					addressCountry: organizationCountry,
+				},
+				areaServed: organizationAreaServed,
+				provider: {
+					'@id': organizationId,
+				},
+			},
+		],
+	},
+	null,
+	2
+);
 ---
 
 <html lang="en">
@@ -52,14 +127,15 @@ try {
 		<meta name="generator" content={Astro.generator} />
 		<title>{resolvedTitle}</title>
 		{seoDescription && <meta name="description" content={seoDescription} />}
+		<script type="application/ld+json" set:html={organizationJsonLd}></script>
 		<link rel="stylesheet" href="/vendor/aos.css" />
 		<link rel="stylesheet" href="/vendor/swiper-bundle.min.css" />
-		<script
-			defer
-			src="https://umami.asoloweb.it/script.js"
-			data-website-id="517b6a8c-733f-4d9f-a924-17c001c2806d"
-		></script>
-		<script src="https://consent.cookiefirst.com/sites/controllocartellesattoriali.it-ab8997c4-07b9-4efd-ae2b-8e8a064a7ed1/consent.js"></script>
+		{shouldLoadThirdPartyScripts && (
+			<>
+				<script defer src={umamiScriptSrc} data-website-id={umamiWebsiteId}></script>
+				<script src={`https://consent.cookiefirst.com/sites/${cookieFirstSiteId}/consent.js`}></script>
+			</>
+		)}
 	</head>
 	<body>
 		<Header />
@@ -68,7 +144,6 @@ try {
 		</main>
 		<Footer />
 		<script defer src="/vendor/aos.js"></script>
-		<script defer src="/vendor/swiper-bundle.min.js"></script>
 		<script defer src="/scripts/aos-init.js"></script>
 		<script defer src="/scripts/swiper-init.js"></script>
 		<slot name="scripts" />

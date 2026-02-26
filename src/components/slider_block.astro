@@ -50,7 +50,11 @@ function resolveImageSrc(value: string | undefined) {
 }
 ---
 
-<div class="slider_block swiper" id={sliderId}>
+<div
+	class="slider_block swiper"
+	id={sliderId}
+	data-swiper-enabled={hasMultipleSlides ? 'true' : 'false'}
+>
 	<div class="swiper-wrapper">
 		{resolvedSlides.map((slide) => (
 			<div

@@ -285,6 +285,14 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL || import.meta.env.DIREC
 						payment_intent_id: paymentResult.paymentIntent?.id,
 					});
 				}
+				if (typeof window.gtag === 'function') {
+					window.gtag('event', 'conversion', {
+						send_to: 'AW-10932709528/9927COWjwoEcEJjRj90o',
+						value: Number.isFinite(revenueValue) ? revenueValue : 99.0,
+						currency: 'EUR',
+						transaction_id: paymentResult.paymentIntent?.id || '',
+					});
+				}
 
 				form.reset();
 				card.clear();

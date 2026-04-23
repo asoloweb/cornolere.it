@@ -13,11 +13,11 @@ export interface Props {
 const { title, seoTitle, seoDescription } = Astro.props;
 const resolvedTitle = seoTitle || title;
 const shouldLoadThirdPartyScripts = !import.meta.env.DEV;
-const siteUrl = (import.meta.env.PUBLIC_SITE_URL || 'https://controllocartellesattoriali.it').replace(/\/+$/, '');
+const siteUrl = (import.meta.env.PUBLIC_SITE_URL || 'https://cornolere.it').replace(/\/+$/, '');
 const organizationName =
-	import.meta.env.PUBLIC_ORGANIZATION_NAME || 'Controllo Cartelle Esattoriali';
+	import.meta.env.PUBLIC_ORGANIZATION_NAME || 'Cornolere';
 const organizationEmail =
-	import.meta.env.PUBLIC_ORGANIZATION_EMAIL || 'info@controllocartellesattoriali.it';
+	import.meta.env.PUBLIC_ORGANIZATION_EMAIL || 'info@cornolere.it';
 const organizationPhone =
 	import.meta.env.PUBLIC_ORGANIZATION_PHONE || '+39 0423 223322';
 const organizationStreetAddress =
@@ -37,7 +37,7 @@ const umamiWebsiteId =
 	import.meta.env.PUBLIC_UMAMI_WEBSITE_ID || '517b6a8c-733f-4d9f-a924-17c001c2806d';
 const cookieFirstSiteId =
 	import.meta.env.PUBLIC_COOKIEFIRST_SITE_ID ||
-	'controllocartellesattoriali.it-ab8997c4-07b9-4efd-ae2b-8e8a064a7ed1';
+	'cornolere.it-ab8997c4-07b9-4efd-ae2b-8e8a064a7ed1';
 
 function resolveImageSrc(value: string) {
 	if (!value) return '';

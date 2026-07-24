@@ -22,7 +22,7 @@ export async function POST({ request }) {
 		params.set('amount', String(amount));
 		params.set('currency', currency);
 		params.append('payment_method_types[]', 'card');
-		params.set('description', 'Partecipa');
+		params.set('description', 'Richiesta soggiorno B&B Cornolere');
 
 		if (body?.email) params.set('receipt_email', String(body.email));
 		if (body?.nome_cognome) params.set('metadata[nome_cognome]', String(body.nome_cognome));

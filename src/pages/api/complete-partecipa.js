@@ -77,7 +77,7 @@ async function createUser(env, { email, password, nomeCognome, roleId }) {
 
 function generatePraticaId() {
 	const raw = crypto.randomUUID().replace(/-/g, '').slice(0, 10).toUpperCase();
-	return `PRAT-${raw}`;
+	return `RICH-${raw}`;
 }
 
 function parseRawBody(rawText, contentType) {
@@ -186,7 +186,7 @@ async function handleRequest(request, env) {
 
 	if (!praticaResponse.ok) {
 		const err = await praticaResponse.text();
-		return jsonResponse(500, { error: 'Pratica creation failed', detail: err });
+		return jsonResponse(500, { error: 'Richiesta creation failed', detail: err });
 	}
 
 	const praticaData = await praticaResponse.json();

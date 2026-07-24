@@ -125,6 +125,10 @@ const faqJsonLd =
 	.accordion_block_inner {
 		max-width: var(--max-width);
 		margin: 0 auto;
+		padding: 34px;
+		border-radius: 34px;
+		background: var(--surface);
+		border: 1px solid var(--border-soft);
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -132,7 +136,8 @@ const faqJsonLd =
 
 	.accordion_block_title {
 		margin: 0 0 22px;
-		font-size: clamp(30px, 4vw, 44px);
+		font-size: clamp(42px, 5vw, 66px);
+		line-height: 0.98;
 		text-align: center;
 	}
 
@@ -145,15 +150,18 @@ const faqJsonLd =
 
 	.accordion_item {
 		background: var(--bianco);
-		border-radius: 14px;
+		border: 1px solid var(--border-soft);
+		border-radius: 22px;
 		overflow: hidden;
+		box-shadow: 0 10px 24px rgba(15, 61, 46, 0.06);
 	}
 
 	.accordion_summary {
 		cursor: pointer;
 		padding: 16px 18px;
-		font-size: 36px;
+		font-size: 26px;
 		font-family: var(--font-heading);
+		font-weight: 700;
 		list-style: none;
 		display: flex;
 		align-items: center;
@@ -198,6 +206,7 @@ const faqJsonLd =
 	.accordion_content {
 		padding: 0 30px 16px;
 		line-height: 1.6;
+		color: #536157;
 	}
 
 	.accordion_button {

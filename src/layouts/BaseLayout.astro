@@ -88,7 +88,7 @@ function getFaviconMimeType(src: string) {
 const faviconMimeType = getFaviconMimeType(logoLightSrc);
 
 const organizationId = `${siteUrl}/#organization`;
-const legalServiceId = `${siteUrl}/#legalservice`;
+const lodgingBusinessId = `${siteUrl}/#bedandbreakfast`;
 const organizationJsonLd = JSON.stringify(
 	{
 		'@context': 'https://schema.org',
@@ -104,8 +104,8 @@ const organizationJsonLd = JSON.stringify(
 				sameAs: organizationSameAs,
 			},
 			{
-				'@type': 'LegalService',
-				'@id': legalServiceId,
+				'@type': 'BedAndBreakfast',
+				'@id': lodgingBusinessId,
 				name: organizationName,
 				url: siteUrl,
 				image: absoluteLogoUrl,
@@ -136,13 +136,14 @@ const organizationJsonLd = JSON.stringify(
 		<link rel="shortcut icon" type={faviconMimeType} href={logoLightSrc} />
 		<link rel="apple-touch-icon" href={logoLightSrc} />
 		<meta name="viewport" content="width=device-width" />
-		<meta name="theme-color" content="#000000" />
+		<meta name="theme-color" content="#0f3d2e" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{resolvedTitle}</title>
 		{seoDescription && <meta name="description" content={seoDescription} />}
 		<script type="application/ld+json" set:html={organizationJsonLd}></script>
 		<link rel="stylesheet" href="/vendor/aos.css" />
 		<link rel="stylesheet" href="/vendor/swiper-bundle.min.css" />
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 		{shouldLoadThirdPartyScripts && (
 			<>
 				<script defer src={umamiScriptSrc} data-website-id={umamiWebsiteId}></script>

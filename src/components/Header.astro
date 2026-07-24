@@ -4,6 +4,7 @@ import { DIRECTUS_URL, directusItemsUrl } from '../lib/directus';
 
 interface MenuItem {
 	id?: number | string;
+	sort?: number | null;
 	label?: string;
 	custom_href?: string;
 	pages?: { pages_id?: PageItem | number | string }[] | PageItem[];
@@ -52,7 +53,7 @@ try {
 	url.searchParams.set('filter[slug][_eq]', 'menu-principale');
 	url.searchParams.set(
 		'fields',
-		'menu_items.menu_items_id.id,menu_items.menu_items_id.label,menu_items.menu_items_id.custom_href,menu_items.menu_items_id.pages.pages_id.id,menu_items.menu_items_id.pages.pages_id.slug,menu_items.menu_items_id.pages.pages_id.title'
+		'menu_items.menu_items_id.id,menu_items.menu_items_id.sort,menu_items.menu_items_id.label,menu_items.menu_items_id.custom_href,menu_items.menu_items_id.pages.pages_id.id,menu_items.menu_items_id.pages.pages_id.slug,menu_items.menu_items_id.pages.pages_id.title'
 	);
 	const response = await fetch(url);
 	if (!response.ok) {
@@ -71,7 +72,7 @@ try {
 		})
 		.filter((item): item is MenuItem => Boolean(item));
 
-	menuItems = itemObjects;
+	menuItems = itemObjects.sort((a, b) => (a.sort ?? 999) - (b.sort ?? 999));
 } catch (error) {
 	console.error('Error fetching menu from Directus:', error);
 }
@@ -147,16 +148,15 @@ function getMenuItemIdClass(item: MenuItem, index: number) {
 }
 ---
 <div class="TopBar">
-	<a target="_blank" href="https://maps.app.goo.gl/Eg3tNKrkvrEuo1jz7">Strada Comunale Delle Corti, 61 - TREVISO  </a>
+	<a target="_blank" href="https://maps.app.goo.gl/Eg3tNKrkvrEuo1jz7">Bed and Breakfast Cornolere - Castelcucco</a>
 	<a href="tel:+390423223322">0423.223322</a>
 	<a href="mailto:info@cornolere.it">info@cornolere.it</a>
-	<a class="TopBarLogin" href="/area-riservata">Area riservata</a>
 </div>
 <header class="site-header">
 	<nav aria-label="Menu principale">
 		<div>
-			<a href="/" aria-label="Vai alla home page di Controllo Cartelle Esattoriali">
-				<img class="MenuLogo" src={logoDarkSrc} alt="Controllo Cartelle Esattoriali" />
+			<a href="/" aria-label="Vai alla home page del Bed and Breakfast Cornolere">
+				<img class="MenuLogo" src={logoDarkSrc} alt="Bed and Breakfast Cornolere" />
 			</a>
 		</div>
 		<div class="MenuItemsContainer">

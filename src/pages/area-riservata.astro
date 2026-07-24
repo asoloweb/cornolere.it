@@ -6,11 +6,11 @@ const directusUrl =
 	import.meta.env.PUBLIC_DIRECTUS_URL || import.meta.env.DIRECTUS_URL || DIRECTUS_URL;
 ---
 
-<BaseLayout title="Area Riservata">
+<BaseLayout title="Area Ospiti">
 	<section class="area_wrapper">
 		<div class="area_login" data-section="login">
-			<h1>Area riservata</h1>
-			<p>Accedi per vedere lo stato della tua pratica.</p>
+			<h1>Area ospiti</h1>
+			<p>Accedi per vedere lo stato della tua richiesta di soggiorno.</p>
 			<form class="area_form" id="login-form">
 				<label>
 					<span>Email</span>
@@ -21,7 +21,7 @@ const directusUrl =
 					<input name="password" type="password" autocomplete="current-password" required />
 				</label>
 				<button type="submit">Accedi</button>
-				<a class="area_register" href="/partecipa">Registrati</a>
+				<a class="area_register" href="/partecipa">Richiedi disponibilita</a>
 				<p class="area_status" role="status" aria-live="polite"></p>
 			</form>
 		</div>
@@ -29,47 +29,47 @@ const directusUrl =
 		<div class="area_dashboard" data-section="dashboard" hidden>
 			<div class="area_header">
 				<div>
-					<h1>La tua pratica</h1>
+					<h1>La tua richiesta</h1>
 					<p class="area_subtitle" id="pratica-status"></p>
 				</div>
 				<button class="area_logout" type="button" id="logout-btn">Esci</button>
 			</div>
 
 			<div class="area_card">
-				<h2>Dati pratica</h2>
+				<h2>Dati richiesta</h2>
 				<div class="area_pratica_selector" id="pratica-selector" hidden>
 					<label>
-						<span>Seleziona pratica</span>
+						<span>Seleziona richiesta</span>
 						<select id="pratica-select"></select>
 					</label>
 				</div>
-				<p><strong>ID pratica:</strong> <span id="pratica-id"></span></p>
+				<p><strong>ID richiesta:</strong> <span id="pratica-id"></span></p>
 				<p><strong>Stato:</strong> <span id="pratica-stato"></span></p>
 			</div>
 
 			<div class="area_card">
-				<h2>Descrizione pratica</h2>
-				<textarea id="pratica-descrizione" rows="6" placeholder="Descrivi la pratica..."></textarea>
+				<h2>Note sul soggiorno</h2>
+				<textarea id="pratica-descrizione" rows="6" placeholder="Aggiungi date, numero ospiti o richieste particolari..."></textarea>
 			</div>
 
 			<div class="area_card area_card_documents">
-				<h2>Documenti</h2>
-				<p class="area_hint">Carica PDF, JPG o PNG (max 15MB).</p>
+				<h2>Allegati</h2>
+				<p class="area_hint">Carica eventuali PDF, JPG o PNG (max 15MB).</p>
 				<input id="file-input" class="area_file_input" type="file" accept=".pdf,.jpg,.jpeg,.png" multiple />
 				<ul class="file_list" id="file-list"></ul>
 			</div>
 
 			<div class="area_card">
-				<h2>Invio pratica</h2>
+				<h2>Invio richiesta</h2>
 				<label class="area_check">
 					<input id="privacy-check" type="checkbox" required />
 					<span>Accetto la <a href="/privacy-policy">privacy policy</a></span>
 				</label>
 				<label class="area_check">
 					<input id="terms-check" type="checkbox" required />
-					<span>Accetto le <a href="/termini-e-condizioni">condizioni d'uso</a></span>
+					<span>Accetto le <a href="/condizioni-del-servizio">condizioni del servizio</a></span>
 				</label>
-				<button class="area_submit" type="button" id="submit-pratica">Invia pratica</button>
+				<button class="area_submit" type="button" id="submit-pratica">Invia richiesta</button>
 				<p class="area_status" id="pratica-status-message" role="status" aria-live="polite"></p>
 			</div>
 		</div>
@@ -135,17 +135,17 @@ const directusUrl =
 		const fields =
 			'fields=id,id_pratica,stato_pratica,descrizione,files.id,files.directus_files_id.id,files.directus_files_id.filename_download,files.directus_files_id.type,files.directus_files_id.filesize&sort=-date_created';
 		const praticaRes = await apiFetch(`/items/pratiche?filter[cliente][_eq]=${userId}&${fields}`);
-		if (!praticaRes.ok) throw new Error('Pratica non trovata');
+		if (!praticaRes.ok) throw new Error('Richiesta non trovata');
 		const praticaPayload = await praticaRes.json();
 		pratiche = praticaPayload && praticaPayload.data ? praticaPayload.data : [];
-		if (!pratiche.length) throw new Error('Pratica non trovata');
+		if (!pratiche.length) throw new Error('Richiesta non trovata');
 
 		const selectedId = pratica ? pratica.id : null;
 		pratica =
 			pratiche.find((item) => item.id === selectedId) ||
 			pratiche[0] ||
 			null;
-		if (!pratica) throw new Error('Pratica non trovata');
+		if (!pratica) throw new Error('Richiesta non trovata');
 
 		renderPraticheSelector(pratiche, pratica ? pratica.id : null);
 
@@ -197,7 +197,7 @@ const directusUrl =
 		items.forEach((item) => {
 			const option = document.createElement('option');
 			option.value = item.id;
-			option.textContent = item.id_pratica || `Pratica ${item.id}`;
+			option.textContent = item.id_pratica || `Richiesta ${item.id}`;
 			if (String(item.id) === String(selectedId)) option.selected = true;
 			praticaSelect.appendChild(option);
 		});
@@ -254,7 +254,7 @@ const directusUrl =
 		if (!praticaLoaded || !pratica || !pratica.id) {
 			showStatus(
 				praticaStatusMessage,
-				'Pratica non disponibile. Ricarica la pagina o accedi di nuovo.',
+				'Richiesta non disponibile. Ricarica la pagina o accedi di nuovo.',
 				'error'
 			);
 			return;
@@ -279,10 +279,10 @@ const directusUrl =
 				showStatus(praticaStatusMessage, 'Errore durante il salvataggio.', 'error');
 				return;
 			}
-			showStatus(praticaStatusMessage, 'Pratica inviata correttamente.', 'success');
+			showStatus(praticaStatusMessage, 'Richiesta inviata correttamente.', 'success');
 			await loadPratica();
 		} catch (error) {
-			console.error('Errore invio pratica:', error);
+			console.error('Errore invio richiesta:', error);
 			showStatus(praticaStatusMessage, 'Errore durante il salvataggio.', 'error');
 		}
 	};
@@ -322,10 +322,10 @@ const directusUrl =
 			try {
 				await loadPratica();
 			} catch (error) {
-				console.error('Errore caricamento pratica:', error);
+				console.error('Errore caricamento richiesta:', error);
 				showStatus(
 					praticaStatusMessage,
-					'Impossibile caricare la pratica. Riprova più tardi.',
+					'Impossibile caricare la richiesta. Riprova piu tardi.',
 					'error'
 				);
 			}
@@ -374,7 +374,7 @@ const directusUrl =
 				setDashboardVisible(true);
 			})
 			.catch((error) => {
-				console.error('Errore caricamento pratica:', error);
+				console.error('Errore caricamento richiesta:', error);
 				setDashboardVisible(false);
 			});
 	}
@@ -401,7 +401,7 @@ const directusUrl =
 		margin: 0 auto;
 		width: 100%;
 		background:
-			radial-gradient(circle at top right, rgba(255, 94, 0, 0.15), transparent 45%),
+			radial-gradient(circle at top right, rgba(15, 61, 46, 0.15), transparent 45%),
 			var(--grigio-chiaro);
 		border: 1px solid #e8e8e8;
 	}
@@ -439,8 +439,7 @@ const directusUrl =
 	.area_form label > span {
 		font-size: 13px;
 		font-weight: 700;
-		letter-spacing: 0.04em;
-		text-transform: uppercase;
+		letter-spacing: 0.01em;
 		color: #555;
 	}
 
@@ -476,7 +475,7 @@ const directusUrl =
 	.area_card textarea:focus {
 		outline: 0;
 		border-color: var(--primary);
-		box-shadow: 0 0 0 3px rgba(255, 94, 0, 0.15);
+		box-shadow: 0 0 0 3px rgba(15, 61, 46, 0.15);
 	}
 
 	.area_form button,
@@ -505,7 +504,7 @@ const directusUrl =
 		font-family: var(--font-heading);
 		font-size: 22px;
 		letter-spacing: 0.02em;
-		background: var(--nero);
+		background: var(--secondary);
 		text-decoration: none;
 		transition: transform 160ms ease, opacity 160ms ease;
 	}

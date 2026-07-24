@@ -44,7 +44,7 @@ const {
 	titolo = 'Recensioni Google',
 	sottotitolo = '',
 	google_place_id = '',
-	google_business_query = 'Studio Legale Portantiolo & Partners',
+	google_business_query = 'Bed and Breakfast Cornolere',
 	numero_recensioni = 6,
 	cta_label = 'Vedi tutte su Google',
 	cta_href = '',
@@ -53,7 +53,7 @@ const {
 const apiKey = import.meta.env.GOOGLE_MAPS_API_KEY || import.meta.env.GOOGLE_PLACES_API_KEY;
 const maxReviews = Math.min(10, Math.max(1, Number(numero_recensioni) || 6));
 const placeQuery = String(
-	google_business_query || import.meta.env.GOOGLE_BUSINESS_QUERY || 'Studio Legale Portantiolo & Partners'
+	google_business_query || import.meta.env.GOOGLE_BUSINESS_QUERY || 'Bed and Breakfast Cornolere'
 ).trim();
 const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -79,21 +79,21 @@ let placeDetails: GooglePlaceDetails | null = null;
 let reviews: GoogleReview[] = [];
 const fallbackReviews: ReviewCard[] = [
 	{
-		author_name: 'Cliente verificato',
+		author_name: 'Ospite verificato',
 		rating: 5,
-		text: 'Professionalita, chiarezza e supporto costante durante tutta la pratica.',
+		text: 'Accoglienza calorosa, camera curata e colazione ottima. Un soggiorno davvero rilassante.',
 		relative_time_description: 'Recensione recente',
 	},
 	{
-		author_name: 'Cliente verificato',
+		author_name: 'Ospite verificato',
 		rating: 5,
-		text: 'Team competente e disponibile. Ho ricevuto risposte rapide e precise.',
+		text: 'Ambiente tranquillo e proprietari molto disponibili. Ideale per staccare qualche giorno.',
 		relative_time_description: 'Recensione recente',
 	},
 	{
-		author_name: 'Cliente verificato',
+		author_name: 'Ospite verificato',
 		rating: 5,
-		text: 'Esperienza positiva: approccio concreto e massima attenzione ai dettagli.',
+		text: 'Posizione comoda, natura intorno e tanti consigli utili per visitare il territorio.',
 		relative_time_description: 'Recensione recente',
 	},
 ];

@@ -5,35 +5,23 @@ interface Props {
 	title?: string;
 }
 
-const { title = 'Partecipa' } = Astro.props;
+const { title = 'Richiedi disponibilita' } = Astro.props;
 
-const priceValue = import.meta.env.PUBLIC_PARTECIPA_PRICE ?? '99';
-const priceLabel = priceValue.includes('€') ? priceValue : `${priceValue}€`;
-const stripePublishableKey =
-	import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY ??
-	import.meta.env.STRIPE_PUBLISHABLE_KEY ??
-	'';
-const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL || import.meta.env.DIRECTUS_URL || DIRECTUS_URL;
+const flowTriggerId = import.meta.env.PUBLIC_DIRECTUS_FLOW_TRIGGER_ID;
+const webhookUrl = import.meta.env.PUBLIC_DIRECTUS_WEBHOOK_RICHIESTE
+	? import.meta.env.PUBLIC_DIRECTUS_WEBHOOK_RICHIESTE
+	: flowTriggerId
+	? `${DIRECTUS_URL}/flows/trigger/${flowTriggerId}`
+	: '';
 ---
 
 <section class="contact_form">
 	<h2 class="contact_form_title">{title}</h2>
 
-	<form
-		class="contact_form_form"
-		method="post"
-		data-price={priceValue}
-		data-stripe-key={stripePublishableKey}
-		data-directus-url={directusUrl}
-	>
+	<form class="contact_form_form" method="post" data-webhook-url={webhookUrl}>
 		<label class="contact_form_field">
 			<span>Nome e cognome</span>
 			<input name="nome_cognome" type="text" autocomplete="name" required />
-		</label>
-
-		<label class="contact_form_field">
-			<span>Indirizzo</span>
-			<input name="indirizzo" type="text" autocomplete="street-address" required />
 		</label>
 
 		<label class="contact_form_field">
@@ -43,39 +31,34 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL || import.meta.env.DIREC
 
 		<label class="contact_form_field">
 			<span>Telefono</span>
-			<input name="telefono" type="tel" autocomplete="tel" required />
+			<input name="telefono" type="tel" autocomplete="tel" />
+		</label>
+
+		<div class="contact_form_grid">
+			<label class="contact_form_field">
+				<span>Arrivo</span>
+				<input name="arrivo" type="date" />
+			</label>
+
+			<label class="contact_form_field">
+				<span>Partenza</span>
+				<input name="partenza" type="date" />
+			</label>
+		</div>
+
+		<label class="contact_form_field">
+			<span>Numero ospiti</span>
+			<input name="ospiti" type="number" min="1" inputmode="numeric" />
 		</label>
 
 		<label class="contact_form_field">
-			<span>Password</span>
-			<input name="password" type="password" autocomplete="new-password" minlength="8" required />
-		</label>
-
-		<label class="contact_form_field">
-			<span>Conferma password</span>
-			<input
-				name="password_confirm"
-				type="password"
-				autocomplete="new-password"
-				minlength="8"
+			<span>Messaggio</span>
+			<textarea
+				name="messaggio"
+				rows={5}
+				placeholder="Indicaci le date, il numero di ospiti e qualsiasi esigenza particolare."
 				required
-			/>
-		</label>
-
-		<label class="contact_form_field">
-			<span>Dati carta di credito</span>
-			<div id="card-element" class="stripe_card"></div>
-			<small class="stripe_help">I pagamenti sono gestiti in sicurezza da Stripe.</small>
-			<span class="stripe_trust_badge" aria-hidden="true">
-				<svg viewBox="0 0 24 24" width="14" height="14" focusable="false" aria-hidden="true">
-					<path
-						fill="currentColor"
-						d="M17 10h-1V8a4 4 0 1 0-8 0v2H7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2Zm-7-2a2 2 0 1 1 4 0v2h-4V8Zm7 11H7v-7h10v7Z"
-					/>
-				</svg>
-				<span>Powered by <strong>Stripe</strong></span>
-			</span>
-			<p class="stripe_error" role="alert"></p>
+			></textarea>
 		</label>
 
 		<label class="contact_form_privacy">
@@ -85,84 +68,29 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL || import.meta.env.DIREC
 			</span>
 		</label>
 
-		<label class="contact_form_privacy">
-			<input name="condizioni_uso" type="checkbox" required />
-			<span>
-				Accetto le <a href="/termini-e-condizioni">condizioni d'uso</a>
-			</span>
-		</label>
-
-		<p class="contact_form_price" aria-label={`Prezzo totale ${priceLabel}`}>
-			<span class="contact_form_price_label">Totale</span>
-			<strong class="contact_form_price_value">{priceLabel}</strong>
-		</p>
-
-		<button class="contact_form_submit MainButton" type="submit">Procedi al pagamento sicuro</button>
+		<button class="contact_form_submit MainButton" type="submit">Invia richiesta</button>
 		<p class="contact_form_status" role="status" aria-live="polite"></p>
 	</form>
 </section>
 
-<script src="https://js.stripe.com/v3/"></script>
 <script type="module">
-	const initPartecipaStripe = () => {
-		const form = document.querySelector('.contact_form_form');
-		if (!(form instanceof HTMLFormElement)) return;
-
+	const form = document.querySelector('.contact_form_form');
+	if (form instanceof HTMLFormElement) {
 		const statusEl = form.querySelector('.contact_form_status');
 		const submitButton = form.querySelector('.contact_form_submit');
-		const priceRaw = form.dataset.price || '';
-		const price = priceRaw ? (priceRaw.includes('€') ? priceRaw : `${priceRaw}€`) : '';
-		const stripeKey = form.dataset.stripeKey || '';
-		const directusUrl = form.dataset.directusUrl || '';
-		const stripeErrorEl = form.querySelector('.stripe_error');
-		const cardElementContainer = form.querySelector('#card-element');
-
-		if (!stripeKey) {
-			if (statusEl) {
-				statusEl.textContent =
-					'Stripe non configurato. Imposta PUBLIC_STRIPE_PUBLISHABLE_KEY (o STRIPE_PUBLISHABLE_KEY).';
-				statusEl.dataset.state = 'error';
-			}
-			if (submitButton instanceof HTMLButtonElement) {
-				submitButton.disabled = true;
-			}
-			return;
-		}
-
-		const stripe = window.Stripe ? window.Stripe(stripeKey) : null;
-		if (!stripe || !cardElementContainer) {
-			if (statusEl) {
-				statusEl.textContent = 'Stripe non disponibile. Riprova più tardi.';
-				statusEl.dataset.state = 'error';
-			}
-			if (submitButton instanceof HTMLButtonElement) {
-				submitButton.disabled = true;
-			}
-			return;
-		}
-
-		const elements = stripe.elements();
-		const card = elements.create('card', {
-			style: {
-				base: {
-					fontSize: '16px',
-					color: '#0b0b0b',
-					fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
-					'::placeholder': { color: '#888' },
-				},
-				invalid: { color: '#b42318' },
-			},
-		});
-		card.mount(cardElementContainer);
-
-		card.on('change', (event) => {
-			if (stripeErrorEl) {
-				stripeErrorEl.textContent = event.error ? event.error.message : '';
-			}
-		});
+		const webhookUrl = form.dataset.webhookUrl;
 
 		form.addEventListener('submit', async (event) => {
 			event.preventDefault();
+			if (!webhookUrl) {
+				if (statusEl) {
+					statusEl.textContent =
+						'Form non configurato. Imposta PUBLIC_DIRECTUS_WEBHOOK_RICHIESTE o PUBLIC_DIRECTUS_FLOW_TRIGGER_ID.';
+					statusEl.dataset.state = 'error';
+				}
+				return;
+			}
+
 			if (submitButton instanceof HTMLButtonElement) {
 				submitButton.disabled = true;
 			}
@@ -174,137 +102,58 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL || import.meta.env.DIREC
 			try {
 				const formData = new FormData(form);
 				const nomeCognome = String(formData.get('nome_cognome') || '').trim();
-				const indirizzo = String(formData.get('indirizzo') || '').trim();
 				const email = String(formData.get('email') || '').trim();
 				const telefono = String(formData.get('telefono') || '').trim();
-				const privacy = formData.get('privacy') ? 'si' : 'no';
-				const condizioniUso = formData.get('condizioni_uso') ? 'si' : 'no';
-				const password = String(formData.get('password') || '').trim();
-				const passwordConfirm = String(formData.get('password_confirm') || '').trim();
-
-				if (!password || password.length < 8 || password !== passwordConfirm) {
-					throw new Error('Password non valida o non corrispondente.');
-				}
-
-				const intentResponse = await fetch('/api/create-payment-intent', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({
-						nome_cognome: nomeCognome,
-						indirizzo,
-						email,
-						telefono,
-						privacy,
-						condizioni_uso: condizioniUso,
-					}),
-				});
-
-				if (!intentResponse.ok) {
-					throw new Error(`Payment intent error: ${intentResponse.status}`);
-				}
-
-				const intentData = await intentResponse.json();
-				const clientSecret = intentData?.clientSecret;
-				if (!clientSecret) {
-					throw new Error('Missing client secret');
-				}
-
-				const paymentResult = await stripe.confirmCardPayment(clientSecret, {
-					payment_method: {
-						card,
-						billing_details: {
-							name: nomeCognome,
-							email,
-							phone: telefono,
-							address: { line1: indirizzo },
-						},
-					},
-				});
-
-				if (paymentResult.error) {
-					throw paymentResult.error;
-				}
-
-				if (paymentResult.paymentIntent?.status !== 'succeeded') {
-					throw new Error('Pagamento non completato');
-				}
+				const arrivo = String(formData.get('arrivo') || '').trim();
+				const partenza = String(formData.get('partenza') || '').trim();
+				const ospiti = String(formData.get('ospiti') || '').trim();
+				const messaggio = String(formData.get('messaggio') || '').trim();
 
 				const contattoLines = [
 					`Nome e cognome: ${nomeCognome}`,
-					`Indirizzo: ${indirizzo}`,
 					`Email: ${email}`,
 					`Telefono: ${telefono || '-'}`,
-					`Prezzo: ${price || '-'}`,
-					`Payment intent: ${paymentResult.paymentIntent?.id || '-'}`,
+					`Arrivo: ${arrivo || '-'}`,
+					`Partenza: ${partenza || '-'}`,
+					`Ospiti: ${ospiti || '-'}`,
+					`Messaggio: ${messaggio}`,
 				];
 				const contatto = contattoLines.join('\n');
+				const payload = {
+					contatto,
+					nome_cognome: nomeCognome,
+					email,
+					telefono,
+					arrivo,
+					partenza,
+					ospiti,
+					messaggio,
+				};
 
-				const completeParams = new URLSearchParams();
-				completeParams.set('nome_cognome', nomeCognome);
-				completeParams.set('indirizzo', indirizzo);
-				completeParams.set('email', email);
-				if (telefono) completeParams.set('telefono', telefono);
-				completeParams.set('privacy', privacy);
-				completeParams.set('condizioni_uso', condizioniUso);
-				completeParams.set('password', password);
-				completeParams.set('contatto', contatto);
-				if (priceRaw || price) completeParams.set('prezzo', String(priceRaw || price));
-				if (paymentResult.paymentIntent?.id)
-					completeParams.set('payment_intent_id', paymentResult.paymentIntent?.id);
+				const response = await fetch(webhookUrl, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						...payload,
+						data: payload,
+						payload,
+						body: payload,
+					}),
+				});
 
-				const completeUrl = `/api/complete-partecipa?${completeParams.toString()}`;
-				const completeResponse = await fetch(completeUrl, { method: 'GET' });
-
-				if (!completeResponse.ok) {
-					throw new Error(`Errore creazione pratica: ${completeResponse.status}`);
-				}
-
-				if (directusUrl) {
-					const loginResponse = await fetch(`${directusUrl}/auth/login`, {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({ email, password }),
-					});
-					if (loginResponse.ok) {
-						const loginPayload = await loginResponse.json();
-						const data = loginPayload?.data;
-						if (data?.access_token) {
-							localStorage.setItem('directus_access_token', data.access_token);
-							if (data?.refresh_token) {
-								localStorage.setItem('directus_refresh_token', data.refresh_token);
-							}
-						}
-					}
-				}
-
-				const revenueValue = Number.parseFloat(String(priceRaw).replace(',', '.'));
-				if (window.umami?.track && Number.isFinite(revenueValue)) {
-					window.umami.track('purchase', {
-						revenue: revenueValue,
-						currency: 'EUR',
-						payment_intent_id: paymentResult.paymentIntent?.id,
-					});
-				}
-				if (typeof window.gtag === 'function') {
-					window.gtag('event', 'conversion', {
-						send_to: 'AW-10932709528/9927COWjwoEcEJjRj90o',
-						value: Number.isFinite(revenueValue) ? revenueValue : 99.0,
-						currency: 'EUR',
-						transaction_id: paymentResult.paymentIntent?.id || '',
-					});
+				if (!response.ok) {
+					throw new Error(`Webhook error: ${response.status}`);
 				}
 
 				form.reset();
-				card.clear();
 				if (statusEl) {
-					statusEl.textContent = 'Pagamento completato con successo.';
+					statusEl.textContent = 'Richiesta inviata con successo.';
 					statusEl.dataset.state = 'success';
 				}
-				window.location.href = '/area-riservata';
 			} catch (error) {
 				console.error('Errore invio richiesta:', error);
 				if (statusEl) {
-					statusEl.textContent = "Errore durante il pagamento. Riprova più tardi.";
+					statusEl.textContent = "Errore durante l'invio. Riprova piu tardi.";
 					statusEl.dataset.state = 'error';
 				}
 			} finally {
@@ -313,17 +162,16 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL || import.meta.env.DIREC
 				}
 			}
 		});
-	};
-
-	initPartecipaStripe();
+	}
 </script>
 
 <style>
 	.contact_form {
-		background: var(--nero);
+		background: var(--primary);
 		border-radius: 24px;
 		padding: 28px;
-		color: var(--bianco);
+		color: #fffaf0;
+		box-shadow: 0 18px 36px rgba(15, 61, 46, 0.18);
 	}
 
 	.contact_form_title {
@@ -337,6 +185,12 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL || import.meta.env.DIREC
 		gap: 14px;
 	}
 
+	.contact_form_grid {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 12px;
+	}
+
 	.contact_form_field {
 		display: flex;
 		flex-direction: column;
@@ -344,48 +198,19 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL || import.meta.env.DIREC
 		font-size: 14px;
 	}
 
-	.contact_form_field input {
-		border: 1px solid #d9d9d9;
-		border-radius: 12px;
+	.contact_form_field input,
+	.contact_form_field textarea {
+		border: 1px solid rgba(255, 250, 240, 0.3);
+		border-radius: 16px;
 		padding: 12px 14px;
 		font: inherit;
+		background: #fffaf0;
+		color: var(--nero);
 	}
 
-	.stripe_card {
-		border: 1px solid #d9d9d9;
-		border-radius: 12px;
-		padding: 12px 14px;
-		background: #fff;
-	}
-
-	.stripe_help {
-		font-size: 12px;
-		color: #666;
-	}
-
-	.stripe_trust_badge {
-		display: inline-flex;
-		align-items: center;
-		gap: 6px;
-		width: fit-content;
-		font-size: 12px;
-		color: #3c4257;
-		background: #eef2ff;
-		border: 1px solid #dbe3ff;
-		border-radius: 999px;
-		padding: 4px 10px;
-	}
-
-	.stripe_trust_badge strong {
-		color: #635bff;
-		font-weight: 700;
-	}
-
-	.stripe_error {
-		margin: 6px 0 0;
-		color: #b42318;
-		font-size: 12px;
-		min-height: 16px;
+	.contact_form_field textarea {
+		resize: vertical;
+		min-height: 120px;
 	}
 
 	.contact_form_privacy {
@@ -406,45 +231,17 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL || import.meta.env.DIREC
 		text-decoration: underline;
 	}
 
-	.contact_form_price {
-		margin: 10px 0 0;
-		padding: 14px 16px;
-		border: 1px solid #e4e7ec;
-		border-radius: 14px;
-		background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-		display: grid;
-		grid-template-columns: 1fr auto;
-		gap: 2px 10px;
-		align-items: center;
-	}
-
-	.contact_form_price_label {
-		font-size: 12px;
-		font-weight: 700;
-		letter-spacing: 0.08em;
-		text-transform: uppercase;
-		color: #667085;
-	}
-
-	.contact_form_price_value {
-		font-size: 26px;
-		line-height: 1;
-		font-weight: 800;
-		color: #101828;
-	}
-
 	.contact_form_submit.MainButton {
 		margin-top: 6px;
 		border: 0;
 		border-radius: 999px;
 		min-width: 0 !important;
-		width:100%;
-		height:80px;
-		font-size:35px;
-		padding: 12px 18px !important;
-		background: var(--primary);
-		color: var(--bianco);
+		width: 100%;
+		padding: 16px 18px !important;
+		background: #fffaf0 !important;
+		color: var(--primary) !important;
 		font-family: var(--font-heading);
+		font-size: 24px;
 		text-align: center;
 		cursor: pointer;
 		transition: transform 180ms ease, opacity 180ms ease;
@@ -472,10 +269,16 @@ const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL || import.meta.env.DIREC
 	}
 
 	.contact_form_status[data-state='error'] {
-		color: #b42318;
+		color: #ffb4a8;
 	}
 
 	.contact_form_status[data-state='loading'] {
-		color: #555;
+		color: #d0d5dd;
+	}
+
+	@media (max-width: 620px) {
+		.contact_form_grid {
+			grid-template-columns: 1fr;
+		}
 	}
 </style>

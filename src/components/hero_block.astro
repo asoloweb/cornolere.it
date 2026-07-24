@@ -68,15 +68,17 @@ function resolveImageSrc(value: string) {
 
 <style>
 	.hero_block {
-		padding: 30px;
+		padding: 34px;
 		margin-bottom: 50px;
 		display: flex;
 		gap: 50px;
-		border-radius: 40px;
+		border-radius: 34px;
 		max-width: var(--max-width);
 		margin: auto;
 		margin-bottom:40px;
-		background-color:#fff;
+		background-color: var(--surface);
+		border: 1px solid var(--border-soft);
+		box-shadow: 0 18px 44px rgba(15, 61, 46, 0.08);
 	}
 	.colonna {
 		flex: 1;
@@ -93,25 +95,30 @@ function resolveImageSrc(value: string) {
 	}
 
 	.colonna_testo h3 {
-		font-size: 25px;
+		font-size: 20px;
+		line-height: 1.55;
 		margin: 0;
 		margin-bottom: 25px;
+		font-family: var(--font-body);
+		font-weight: 400;
+		color: #536157;
 	}
 
 	.colonna_testo .title {
-		font-size: 60px;
+		font-size: clamp(44px, 5vw, 72px);
 		font-family: var(--font-heading);
-		line-height: 55px;
-		font-weight: bold;
+		line-height: 0.95;
 		margin-top: 40px;
 		margin-bottom: 20px;
-		font-weight: 500;
+		font-weight: 700;
+		letter-spacing: -0.03em;
 	}
 
 	.colonna_immagine img {
 		object-fit: cover;
 		height: 100%;
-    	border-radius: 20px;
+	    	border-radius: 26px;
+		box-shadow: 0 14px 34px rgba(15, 61, 46, 0.16);
 	}
 
 	.hero_button {
@@ -121,9 +128,10 @@ function resolveImageSrc(value: string) {
 	}
 	.hero_text {
 		margin: 0 0 30px;
-		line-height: 24px;
-		font-size: 19px;
-		font-weight: 300;
+		line-height: 1.7;
+		font-size: 18px;
+		font-weight: 400;
+		color: #445047;
 	}
 	.hero_image {
 		max-width: 100%;

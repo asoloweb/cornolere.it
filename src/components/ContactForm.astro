@@ -18,8 +18,8 @@ const webhookUrl = import.meta.env.PUBLIC_DIRECTUS_WEBHOOK_RICHIESTE
 <section class="contact_form">
 	<form class="contact_form_form" method="post" data-webhook-url={webhookUrl}>
 		<label class="contact_form_field">
-			<span>Ragione sociale</span>
-			<input name="ragione_sociale" type="text" autocomplete="organization" required />
+			<span>Nome e cognome</span>
+			<input name="nome_cognome" type="text" autocomplete="name" required />
 		</label>
 
 		<label class="contact_form_field">
@@ -32,9 +32,22 @@ const webhookUrl = import.meta.env.PUBLIC_DIRECTUS_WEBHOOK_RICHIESTE
 			<input name="telefono" type="tel" autocomplete="tel" />
 		</label>
 
+
+		<div class="contact_form_grid">
+			<label class="contact_form_field">
+				<span>Arrivo</span>
+				<input name="arrivo" type="date" />
+			</label>
+
+			<label class="contact_form_field">
+				<span>Partenza</span>
+				<input name="partenza" type="date" />
+			</label>
+		</div>
+
 		<label class="contact_form_field">
-			<span>Referente</span>
-			<input name="referente" type="text" autocomplete="name" required />
+			<span>Numero ospiti</span>
+			<input name="ospiti" type="number" min="1" inputmode="numeric" />
 		</label>
 
 		<label class="contact_form_field">
@@ -82,27 +95,33 @@ const webhookUrl = import.meta.env.PUBLIC_DIRECTUS_WEBHOOK_RICHIESTE
 
 			try {
 				const formData = new FormData(form);
-				const ragioneSociale = String(formData.get('ragione_sociale') || '').trim();
+				const nomeCognome = String(formData.get('nome_cognome') || '').trim();
 				const email = String(formData.get('email') || '').trim();
 				const telefono = String(formData.get('telefono') || '').trim();
-				const referente = String(formData.get('referente') || '').trim();
+				const arrivo = String(formData.get('arrivo') || '').trim();
+				const partenza = String(formData.get('partenza') || '').trim();
+				const ospiti = String(formData.get('ospiti') || '').trim();
 				const messaggio = String(formData.get('messaggio') || '').trim();
 
 				const contattoLines = [
-					`Ragione sociale: ${ragioneSociale}`,
+					`Nome e cognome: ${nomeCognome}`,
 					`Email: ${email}`,
 					`Telefono: ${telefono || '-'}`,
-					`Referente: ${referente}`,
+					`Arrivo: ${arrivo || '-'}`,
+					`Partenza: ${partenza || '-'}`,
+					`Ospiti: ${ospiti || '-'}`,
 					`Messaggio: ${messaggio}`,
 				];
 				const contatto = contattoLines.join('\n');
 
 				const payload = {
 					contatto,
-					ragione_sociale: ragioneSociale,
+					nome_cognome: nomeCognome,
 					email,
 					telefono,
-					referente,
+					arrivo,
+					partenza,
+					ospiti,
 					messaggio,
 				};
 
@@ -145,16 +164,23 @@ const webhookUrl = import.meta.env.PUBLIC_DIRECTUS_WEBHOOK_RICHIESTE
 
 <style>
 	.contact_form {
-		background: var(--nero);
+		background: var(--primary);
 		border-radius: 24px;
 		padding: 28px;
-		color: var(--bianco);
+		color: #fffaf0;
+		box-shadow: 0 18px 36px rgba(15, 61, 46, 0.18);
 	}
 
 	.contact_form_form {
 		display: flex;
 		flex-direction: column;
 		gap: 14px;
+	}
+
+	.contact_form_grid {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 12px;
 	}
 
 	.contact_form_field {
@@ -166,10 +192,12 @@ const webhookUrl = import.meta.env.PUBLIC_DIRECTUS_WEBHOOK_RICHIESTE
 
 	.contact_form_field input,
 	.contact_form_field textarea {
-		border: 1px solid #d9d9d9;
-		border-radius: 12px;
+		border: 1px solid rgba(255, 250, 240, 0.3);
+		border-radius: 16px;
 		padding: 12px 14px;
 		font: inherit;
+		background: #fffaf0;
+		color: var(--nero);
 	}
 
 	.contact_form_field textarea {
@@ -202,8 +230,8 @@ const webhookUrl = import.meta.env.PUBLIC_DIRECTUS_WEBHOOK_RICHIESTE
 		border-radius: 999px;
 		min-width: 0 !important;
 		padding: 12px 18px !important;
-		background: var(--primary);
-		color: var(--bianco);
+		background: #fffaf0 !important;
+		color: var(--primary) !important;
 		font-family: var(--font-heading);
 		font-size: 16px;
 		text-align: center;
@@ -238,5 +266,11 @@ const webhookUrl = import.meta.env.PUBLIC_DIRECTUS_WEBHOOK_RICHIESTE
 
 	.contact_form_status[data-state='loading'] {
 		color: #555;
+	}
+
+	@media (max-width: 620px) {
+		.contact_form_grid {
+			grid-template-columns: 1fr;
+		}
 	}
 </style>

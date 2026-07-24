@@ -60,7 +60,30 @@ function getCardHref(card: SingleCard) {
 	return '';
 }
 
+function stripHtml(value: string) {
+	return value.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+function normalizeText(value: string) {
+	return stripHtml(value)
+		.normalize('NFD')
+		.replace(/[\u0300-\u036f]/g, '')
+		.toLowerCase();
+}
+
+function getCardIconClass(cardTitle: string | undefined) {
+	const title = normalizeText(cardTitle || '');
+	if (title.includes('camera')) return 'fa-solid fa-bed';
+	if (title.includes('colazione')) return 'fa-solid fa-mug-saucer';
+	if (title.includes('natura')) return 'fa-solid fa-tree';
+	if (title.includes('posizione')) return 'fa-solid fa-map-location-dot';
+	if (title.includes('parcheggio')) return 'fa-solid fa-square-parking';
+	if (title.includes('wi-fi') || title.includes('wifi')) return 'fa-solid fa-wifi';
+	return 'fa-solid fa-leaf';
+}
+
 const cards = normalizeCards(card);
+const usesServiceIcons = normalizeText(titolo).includes('perche scegliere');
 ---
 
 {cards.length > 0 && (
@@ -73,10 +96,15 @@ const cards = normalizeCards(card);
 					const href = getCardHref(single);
 					const Tag = href ? 'a' : 'div';
 					const imageSrc = resolveImageSrc(single.immagine);
+					const iconClass = usesServiceIcons ? getCardIconClass(single.titolo_card) : '';
 
 					return (
 						<Tag class="cards_card" href={href || undefined}>
-							{imageSrc && (
+							{iconClass ? (
+								<div class="cards_card_icon" aria-hidden="true">
+									<i class={iconClass}></i>
+								</div>
+							) : imageSrc && (
 								<div class="cards_card_media">
 									<img src={imageSrc} alt={single.titolo_card || ''} loading="lazy" />
 								</div>
@@ -99,16 +127,18 @@ const cards = normalizeCards(card);
 	.cards_block_inner {
 		max-width: var(--max-width);
 		margin: 0 auto;
-		padding:30px;
-		border-radius:20px;
-		background-color:#fff;
+		padding:34px;
+		border-radius:34px;
+		background-color: var(--surface);
+		border: 1px solid var(--border-soft);
+		box-shadow: 0 18px 44px rgba(15, 61, 46, 0.07);
 	}
 
 	.cards_block_title {
-		margin: 40px 0;
-		color: #000;
-		font-size:60px;
-		line-height: 60px;
+		margin: 20px 0 34px;
+		font-size: clamp(42px, 5vw, 66px);
+		line-height: 0.98;
+		letter-spacing: -0.03em;
 	}
 
 	.cards_block_title :global(span) {
@@ -130,13 +160,14 @@ const cards = normalizeCards(card);
 		display: flex;
 		flex-direction: column;
 		gap: 12px;
-		padding: 18px;
+		padding: 22px;
 		background: var(--bianco);
-		border-radius: 18px;
+		border-radius: 24px;
 		color: var(--nero);
-		transition: transform 200ms ease, box-shadow 200ms ease;
+		transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
 		min-height: 100%;
-		box-shadow: 4px 11px 20px #00000029;
+		border: 1px solid var(--border-soft);
+		box-shadow: 0 12px 26px rgba(15, 61, 46, 0.08);
 		text-align: center;
 		align-items: center;
 		min-height: 240px;
@@ -145,19 +176,34 @@ const cards = normalizeCards(card);
 
 	a.cards_card:hover {
 		transform: translateY(-4px);
-		box-shadow: 0 16px 30px rgba(0, 0, 0, 0.15);
+		border-color: rgba(15, 61, 46, 0.28);
+		box-shadow: 0 18px 34px rgba(15, 61, 46, 0.14);
 	}
 
 	.cards_card_title {
 		margin: 4px 0 0;
-		font-size: 22px;
-		line-height: 24px;
+		font-size: 28px;
+		line-height: 1.05;
+	}
+
+	.cards_card_icon {
+		width: 76px;
+		height: 76px;
+		border-radius: 999px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		background: rgba(15, 61, 46, 0.1);
+		color: var(--primary);
+		font-size: 34px;
+		margin-bottom: 8px;
 	}
 
 	.cards_card_description {
 		margin: 4px 0 0;
 		font-size: 16px;
-		line-height: 22px;
+		line-height: 1.55;
+		color: #536157;
 	}
 
 	@media (max-width: 1024px) {

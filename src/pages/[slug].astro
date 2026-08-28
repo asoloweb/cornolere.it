@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageContent from '../components/PageContent.astro';
-import { directusItemsUrl } from '../lib/directus';
+import { directusFetch, directusItemsUrl } from '../lib/directus';
 
 type Page = {
 	status?: string;
@@ -24,7 +24,7 @@ async function fetchPageBySlug(slug: string) {
 	url.searchParams.set('filter[status][_eq]', 'published');
 	url.searchParams.set('filter[_or][0][slug][_eq]', slug);
 	url.searchParams.set('filter[_or][1][slug][slug][_eq]', slug);
-	const response = await fetch(url);
+	const response = await directusFetch(url);
 	const data = await response.json();
 	return (data?.data?.[0] as Page | undefined) ?? null;
 }

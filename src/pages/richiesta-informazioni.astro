@@ -1,0 +1,351 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const organizationEmail = import.meta.env.PUBLIC_ORGANIZATION_EMAIL || 'info@cornolere.it';
+const organizationPhone = import.meta.env.PUBLIC_ORGANIZATION_PHONE || '+39 0423 223322';
+const organizationStreet = import.meta.env.PUBLIC_ORGANIZATION_STREET || 'Strada Comunale Delle Corti, 61';
+const organizationCity = import.meta.env.PUBLIC_ORGANIZATION_CITY || 'Treviso';
+---
+
+<BaseLayout
+	title="Richiesta informazioni"
+	seoTitle="Richiesta informazioni - B&B Cornolere"
+	seoDescription="Richiedi informazioni o prenota il tuo soggiorno al B&B Cornolere. Compila il form con le date desiderate o contattaci direttamente."
+>
+	<section class="contact_page">
+		<div class="contact_page_inner">
+
+			<div class="contact_page_info" data-aos="fade-right" data-aos-duration="1200">
+				<h1>Richiesta informazioni</h1>
+				<p class="contact_page_info_lead">
+					Hai domande o vuoi prenotare il tuo soggiorno? Compila il form a lato
+					con le date desiderate e ti risponderemo entro 24 ore.
+					Puoi anche contattarci direttamente usando i riferimenti qui sotto.
+				</p>
+
+				<ul class="contact_page_info_list">
+					<li>
+						<span class="contact_page_info_icon"><i class="fa-solid fa-phone"></i></span>
+						<div>
+							<strong>Telefono</strong>
+							<a href={`tel:${organizationPhone.replace(/\s/g, '')}`}>{organizationPhone}</a>
+						</div>
+					</li>
+					<li>
+						<span class="contact_page_info_icon"><i class="fa-solid fa-envelope"></i></span>
+						<div>
+							<strong>Email</strong>
+							<a href={`mailto:${organizationEmail}`}>{organizationEmail}</a>
+						</div>
+					</li>
+					<li>
+						<span class="contact_page_info_icon"><i class="fa-solid fa-location-dot"></i></span>
+						<div>
+							<strong>Indirizzo</strong>
+							<span>{organizationStreet}<br />{organizationCity}</span>
+						</div>
+					</li>
+					<li>
+						<span class="contact_page_info_icon"><i class="fa-solid fa-clock"></i></span>
+						<div>
+							<strong>Check-in / Check-out</strong>
+							<span>Check-in dalle 15:00 alle 20:00<br />Check-out entro le 11:00</span>
+						</div>
+					</li>
+				</ul>
+			</div>
+
+			<div class="contact_page_form_wrap" data-aos="fade-left" data-aos-duration="1200">
+				<form class="contact_page_form" id="contact-page-form">
+					<h2>Invia una richiesta</h2>
+
+					<label class="cpf_field">
+						<span>Nome e cognome *</span>
+						<input name="nome" type="text" autocomplete="name" required />
+					</label>
+
+					<label class="cpf_field">
+						<span>Telefono</span>
+						<input name="telefono" type="tel" autocomplete="tel" />
+					</label>
+
+					<label class="cpf_field">
+						<span>Email *</span>
+						<input name="email" type="email" autocomplete="email" required />
+					</label>
+
+					<label class="cpf_field">
+						<span>Indirizzo</span>
+						<input name="indirizzo" type="text" autocomplete="street-address" />
+					</label>
+
+					<div class="cpf_grid">
+						<label class="cpf_field">
+							<span>Data inizio</span>
+							<input name="data_inizio" type="date" />
+						</label>
+						<label class="cpf_field">
+							<span>Data fine</span>
+							<input name="data_fine" type="date" />
+						</label>
+					</div>
+
+					<label class="cpf_field">
+						<span>Messaggio *</span>
+						<textarea name="messaggio" rows={5} required></textarea>
+					</label>
+
+					<label class="cpf_privacy">
+						<input name="privacy" type="checkbox" required />
+						<span>Accetto la <a href="/privacy-policy">privacy policy</a></span>
+					</label>
+
+					<button class="cpf_submit MainButton" type="submit">Invia richiesta</button>
+					<p class="cpf_status" role="status" aria-live="polite"></p>
+				</form>
+			</div>
+
+		</div>
+	</section>
+</BaseLayout>
+
+<script type="module">
+	const form = document.getElementById('contact-page-form');
+	if (form instanceof HTMLFormElement) {
+		const statusEl = form.querySelector('.cpf_status');
+		const submitBtn = form.querySelector('.cpf_submit');
+
+		form.addEventListener('submit', async (e) => {
+			e.preventDefault();
+			if (submitBtn instanceof HTMLButtonElement) submitBtn.disabled = true;
+			if (statusEl) { statusEl.textContent = 'Invio in corso...'; statusEl.dataset.state = 'loading'; }
+
+			try {
+				const fd = new FormData(form);
+				const payload = {
+					nome: fd.get('nome'),
+					telefono: fd.get('telefono'),
+					email: fd.get('email'),
+					indirizzo: fd.get('indirizzo'),
+					data_inizio: fd.get('data_inizio'),
+					data_fine: fd.get('data_fine'),
+					messaggio: fd.get('messaggio'),
+				};
+
+				const res = await fetch('/api/send-contact', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(payload),
+				});
+				const data = await res.json();
+
+				if (!res.ok) throw new Error(data?.error || 'Errore');
+
+				form.reset();
+				if (statusEl) { statusEl.textContent = 'Richiesta inviata con successo!'; statusEl.dataset.state = 'success'; }
+			} catch (err) {
+				if (statusEl) { statusEl.textContent = err?.message || "Errore durante l'invio."; statusEl.dataset.state = 'error'; }
+			} finally {
+				if (submitBtn instanceof HTMLButtonElement) submitBtn.disabled = false;
+			}
+		});
+	}
+</script>
+
+<style>
+	.contact_page {
+		max-width: var(--max-width);
+		margin: 0 auto;
+		padding: 40px 20px 60px;
+	}
+
+	.contact_page_inner {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+		gap: 40px;
+		align-items: start;
+	}
+
+	/* --- Left column --- */
+	.contact_page_info h1 {
+		font-size: clamp(42px, 5vw, 66px);
+		line-height: 0.98;
+		letter-spacing: -0.03em;
+		margin: 0 0 20px;
+	}
+
+	.contact_page_info_lead {
+		font-size: 18px;
+		line-height: 1.6;
+		color: #536157;
+		margin: 0 0 32px;
+	}
+
+	.contact_page_info_list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 22px;
+	}
+
+	.contact_page_info_list li {
+		display: flex;
+		align-items: flex-start;
+		gap: 16px;
+	}
+
+	.contact_page_info_icon {
+		flex-shrink: 0;
+		width: 48px;
+		height: 48px;
+		border-radius: 999px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		background: rgba(15, 61, 46, 0.1);
+		color: var(--primary);
+		font-size: 20px;
+	}
+
+	.contact_page_info_list strong {
+		display: block;
+		font-size: 15px;
+		margin-bottom: 2px;
+	}
+
+	.contact_page_info_list a,
+	.contact_page_info_list span {
+		color: #536157;
+		font-size: 16px;
+		line-height: 1.5;
+		text-decoration: none;
+	}
+
+	.contact_page_info_list a:hover {
+		color: var(--primary);
+		text-decoration: underline;
+	}
+
+	/* --- Right column --- */
+	.contact_page_form_wrap {
+		position: sticky;
+		top: 20px;
+	}
+
+	.contact_page_form {
+		background: var(--primary);
+		border-radius: 28px;
+		padding: 32px;
+		color: #fffaf0;
+		box-shadow: 0 18px 40px rgba(15, 61, 46, 0.2);
+		display: flex;
+		flex-direction: column;
+		gap: 14px;
+	}
+
+	.contact_page_form h2 {
+		margin: 0 0 8px;
+		font-size: 28px;
+	}
+
+	.cpf_field {
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+		font-size: 14px;
+	}
+
+	.cpf_field input,
+	.cpf_field textarea {
+		border: 1px solid rgba(255, 250, 240, 0.3);
+		border-radius: 14px;
+		padding: 12px 14px;
+		font: inherit;
+		background: #fffaf0;
+		color: var(--nero);
+	}
+
+	.cpf_field textarea {
+		resize: vertical;
+		min-height: 110px;
+	}
+
+	.cpf_grid {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 12px;
+	}
+
+	.cpf_privacy {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		font-size: 14px;
+	}
+
+	.cpf_privacy input {
+		width: 18px;
+		height: 18px;
+		flex-shrink: 0;
+	}
+
+	.cpf_privacy a {
+		color: #fffaf0;
+		text-decoration: underline;
+	}
+
+	.cpf_submit.MainButton {
+		margin-top: 6px;
+		border: 0;
+		width: 100%;
+		border-radius: 999px;
+		padding: 14px 18px !important;
+		background: #fffaf0 !important;
+		color: var(--primary) !important;
+		font-family: var(--font-heading);
+		font-size: 18px;
+		text-align: center;
+		cursor: pointer;
+		transition: transform 180ms ease, opacity 180ms ease;
+	}
+
+	.cpf_submit:hover {
+		transform: translateY(-2px);
+		opacity: 0.95;
+	}
+
+	.cpf_submit:disabled {
+		opacity: 0.7;
+		cursor: not-allowed;
+		transform: none;
+	}
+
+	.cpf_status {
+		margin: 4px 2px 0;
+		font-size: 14px;
+		min-height: 20px;
+	}
+
+	.cpf_status[data-state='success'] { color: #7ee0a0; }
+	.cpf_status[data-state='error'] { color: #ffb4a8; }
+	.cpf_status[data-state='loading'] { color: #d0d5dd; }
+
+	@media (max-width: 880px) {
+		.contact_page_inner {
+			grid-template-columns: 1fr;
+			gap: 32px;
+		}
+
+		.contact_page_form_wrap {
+			position: static;
+		}
+	}
+
+	@media (max-width: 560px) {
+		.cpf_grid {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

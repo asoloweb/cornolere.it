@@ -28,6 +28,7 @@ interface Options {
 
 let logoLightSrc = import.meta.env.PUBLIC_LOGO_LIGHT || '/favicon.svg';
 let footerText = '';
+const currentPath = Astro.url?.pathname ?? '/';
 const footerMenus = [
 	{ slug: 'menu-footer-1', items: [] as MenuItem[] },
 	{ slug: 'menu-footer-2', items: [] as MenuItem[] },
@@ -127,24 +128,47 @@ function getMenuItemIdClass(item: MenuItem, index: number, menuIndex: number) {
 	const safe = raw.toLowerCase().replace(/[^a-z0-9_-]+/g, '-');
 	return `menu_item_id_${safe}`;
 }
+
+function normalizePath(path: string) {
+	if (!path) return '/';
+	let cleanPath = path.split('?')[0].split('#')[0];
+	if (cleanPath.length > 1 && cleanPath.endsWith('/')) {
+		cleanPath = cleanPath.slice(0, -1);
+	}
+	return cleanPath;
+}
+
+function isCurrentMenuItem(href: string) {
+	if (!href) return false;
+	const base = Astro.url?.origin || 'http://localhost';
+	try {
+		const url = new URL(href, base);
+		return normalizePath(url.pathname) === normalizePath(currentPath);
+	} catch {
+		return false;
+	}
+}
 ---
 
 <footer class="site-footer">
-	<nav aria-label="Menu footer">
+	<div class="site_footer_inner">
 		<div>
 			<a href="/" aria-label="Vai alla home page del Bed and Breakfast Cornolere">
 				<img class="MenuLogo" src={logoLightSrc} alt="Bed and Breakfast Cornolere" />
 			</a>
 		</div>
 		<div class="FooterItemsContainer">
-			{footerMenus.map((footerMenu, menuIndex) => (
+			{footerMenus.map((footerMenu) => (
 				<div class="FooterMenuColumn">
 					{footerMenu.items.map((item, index) => {
 						const href = getItemHref(item);
 						const title = getItemTitle(item, index);
-						const idClass = getMenuItemIdClass(item, index, menuIndex);
+						const isCurrent = isCurrentMenuItem(href);
+						const className = isCurrent
+							? 'footer_menu_item current_footer_menu_item'
+							: 'footer_menu_item';
 						return (
-							<a href={href} class={`menu_item ${idClass}`}>
+							<a href={href} class={className}>
 								{title}
 							</a>
 						);
@@ -152,6 +176,6 @@ function getMenuItemIdClass(item: MenuItem, index: number, menuIndex: number) {
 				</div>
 			))}
 		</div>
-	</nav>
+	</div>
 	<div class="footer_data" set:html={footerText} />
 </footer>

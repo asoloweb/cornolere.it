@@ -70,6 +70,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       watchOverflow: false,
     };
 
+    if (el.classList.contains('room_gallery')) {
+      options.loop = false;
+      options.autoHeight = false;
+      options.keyboard = { enabled: true };
+    }
+
     if (el.classList.contains('google_reviews_slider')) {
       options.autoHeight = true;
       options.slidesPerView = 1;

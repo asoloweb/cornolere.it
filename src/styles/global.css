@@ -316,9 +316,15 @@ a {
 }
 
 .footer_data {
-  color:#f9f9f9;
-  font-size:12px;
-  margin-top:30px;
+  color: rgba(253, 248, 239, 0.75);
+  font-size: 13px;
+  font-family: var(--font-body);
+  line-height: 1.6;
+  margin-top: 30px;
+  max-width: 1440px;
+  width: 100%;
+  padding: 0 20px;
+  text-align: center;
 }
 
 #block-cards-block-6-2 .cards_card_media img {
@@ -329,15 +335,16 @@ a {
   height:200px !important;
 }
 
-.site-footer nav {
-    max-width: var(--max-width);
+.site_footer_inner {
+    max-width: 1440px;
     width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    padding: 100px 0;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 40px;
+    align-items: start;
+    padding: 80px 20px;
     border-bottom: 1px solid rgba(255, 250, 240, 0.22);
-}
+  }
 
 #block-hero-block-13-3 .MainButton {
   background-color:transparent !important;
@@ -350,14 +357,44 @@ a {
 }
 
 .FooterItemsContainer {
-  display: flex;
-  gap:50px;
-}
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 40px;
+    width: 100%;
+  }
 
-.FooterMenuColumn {
-  display: flex;
-  flex-direction: column;
-}
+  .FooterMenuColumn {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .footer_menu_item {
+    display: block;
+    font-size: 20px;
+    font-family: var(--font-heading);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: rgba(253, 248, 239, 0.85);
+    transition: color 200ms ease;
+    padding: 0;
+    margin: 0;
+  }
+
+  .footer_menu_item:hover {
+    color: #fffaf0;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .current_footer_menu_item {
+    color: #fffaf0 !important;
+    text-decoration: underline !important;
+    text-decoration-color: #fffaf0 !important;
+    text-decoration-thickness: 2px !important;
+    text-underline-offset: 6px !important;
+  }
 
 .page_header {
   min-height: 500px;
@@ -440,14 +477,15 @@ a {
     margin: auto;
   }
 
-  .site-footer nav {
-    flex-direction: column-reverse !important;
+  .site_footer_inner {
+    grid-template-columns: 1fr;
+    gap: 30px;
   }
 
   .FooterItemsContainer {
-    flex-direction: column !important;
-    gap:0 !important;
-    margin-bottom:100px;
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+    margin-bottom: 40px;
   }
 
   .single_slide {

@@ -30,6 +30,7 @@ type SlideItem = {
 
 type SliderItem = {
 	id?: number;
+	titolo?: string;
 	slides?: { item?: SlideItem }[] | SlideItem[];
 };
 
@@ -300,12 +301,12 @@ function getBlockDomId(block: EditorEntry, collection: string, index: number) {
 				}
 				case 'slider_block': {
 					const sliderBlock = block.item as SliderBlockItem;
-					const slides = normalizeSlides(
-						sliderBlock?.slider && typeof sliderBlock.slider === 'object'
-							? sliderBlock.slider
-							: null
-					);
-					blockContent = <SliderBlock slides={slides} />;
+					const slider = sliderBlock?.slider && typeof sliderBlock.slider === 'object'
+						? sliderBlock.slider
+						: null;
+					const slides = normalizeSlides(slider);
+					const variant = slider?.titolo?.toLowerCase().includes('gallery') ? 'gallery' : 'hero';
+					blockContent = <SliderBlock slides={slides} variant={variant} />;
 					break;
 				}
 				case 'cards_block': {

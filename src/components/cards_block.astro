@@ -1,5 +1,5 @@
 ---
-import { DIRECTUS_URL } from '../lib/directus';
+import { directusAssetUrl } from '../lib/directus';
 
 interface PageRef {
 	id?: number;
@@ -27,11 +27,13 @@ interface Props {
 const { titolo = '', card = [] } = Astro.props;
 
 function resolveImageSrc(value: string | undefined) {
-	if (!value) return '';
-	if (value.startsWith('http://') || value.startsWith('https://') || value.startsWith('/')) {
-		return value;
-	}
-	return `${DIRECTUS_URL}/assets/${value}`;
+	return directusAssetUrl(value, {
+		width: 720,
+		height: 540,
+		quality: 82,
+		format: 'webp',
+		fit: 'cover',
+	});
 }
 
 function normalizeCards(input: CardRelation[] | SingleCard[]) {
@@ -83,11 +85,13 @@ function getCardIconClass(cardTitle: string | undefined) {
 }
 
 const cards = normalizeCards(card);
-const usesServiceIcons = normalizeText(titolo).includes('perche scegliere');
+const normalizedTitle = normalizeText(titolo);
+const usesServiceIcons = normalizedTitle.includes('perche scegliere');
+const isRoomsBlock = normalizedTitle.includes('camere');
 ---
 
 {cards.length > 0 && (
-	<section class="cards_block" data-aos="fade-up" data-aos-duration="1500">
+	<section class:list={['cards_block', { cards_block_rooms: isRoomsBlock }]} data-aos="fade-up" data-aos-duration="1500">
 		<div class="cards_block_inner">
 			{titolo && <h2 class="cards_block_title" set:html={titolo} />}
 
@@ -99,7 +103,7 @@ const usesServiceIcons = normalizeText(titolo).includes('perche scegliere');
 					const iconClass = usesServiceIcons ? getCardIconClass(single.titolo_card) : '';
 
 					return (
-						<Tag class="cards_card" href={href || undefined}>
+						<Tag class="cards_card" href={href || undefined} aria-label={href ? `Scopri ${stripHtml(single.titolo_card || 'la camera')}` : undefined}>
 							{iconClass ? (
 								<div class="cards_card_icon" aria-hidden="true">
 									<i class={iconClass}></i>
@@ -154,6 +158,47 @@ const usesServiceIcons = normalizeText(titolo).includes('perche scegliere');
 		grid-template-columns: repeat(3, minmax(0, 1fr));
 		gap: 24px;
 		margin-bottom:40px;
+	}
+
+	.cards_block_rooms .cards_grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.cards_block_rooms .cards_card {
+		padding: 0 0 22px;
+		justify-content: flex-start;
+		overflow: hidden;
+	}
+
+	.cards_block_rooms .cards_card_media {
+		width: 100%;
+		aspect-ratio: 4 / 3;
+		overflow: hidden;
+	}
+
+	.cards_block_rooms .cards_card_media img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transition: transform 300ms ease;
+	}
+
+	.cards_block_rooms a.cards_card:hover .cards_card_media img {
+		transform: scale(1.04);
+	}
+
+	.cards_block_rooms .cards_card_title,
+	.cards_block_rooms .cards_card_description {
+		padding-inline: 18px;
+	}
+
+	.cards_block_rooms .cards_card_title {
+		font-size: 24px;
+	}
+
+	.cards_block_rooms a.cards_card:focus-visible {
+		outline: 3px solid var(--secondary);
+		outline-offset: 4px;
 	}
 
 	.cards_card {
@@ -213,8 +258,9 @@ const usesServiceIcons = normalizeText(titolo).includes('perche scegliere');
 	}
 
 	@media (max-width: 640px) {
-		.cards_grid {
-			grid-template-columns: 1fr 1fr;
+		.cards_grid,
+		.cards_block_rooms .cards_grid {
+			grid-template-columns: 1fr;
 		}
 	}
 </style>

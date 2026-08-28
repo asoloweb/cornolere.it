@@ -14,6 +14,7 @@ const { title, seoTitle, seoDescription } = Astro.props;
 const resolvedTitle = seoTitle || title;
 const shouldLoadThirdPartyScripts = !import.meta.env.DEV;
 const siteUrl = (import.meta.env.PUBLIC_SITE_URL || 'https://cornolere.it').replace(/\/+$/, '');
+const canonicalUrl = new URL(Astro.url.pathname, `${siteUrl}/`).toString();
 const organizationName =
 	import.meta.env.PUBLIC_ORGANIZATION_NAME || 'Cornolere';
 const organizationEmail =
@@ -129,7 +130,7 @@ const organizationJsonLd = JSON.stringify(
 );
 ---
 
-<html lang="en">
+<html lang="it">
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" type={faviconMimeType} href={logoLightSrc} />
@@ -140,6 +141,16 @@ const organizationJsonLd = JSON.stringify(
 		<meta name="generator" content={Astro.generator} />
 		<title>{resolvedTitle}</title>
 		{seoDescription && <meta name="description" content={seoDescription} />}
+		<link rel="canonical" href={canonicalUrl} />
+		<meta property="og:type" content="website" />
+		<meta property="og:locale" content="it_IT" />
+		<meta property="og:title" content={resolvedTitle} />
+		{seoDescription && <meta property="og:description" content={seoDescription} />}
+		<meta property="og:url" content={canonicalUrl} />
+		<meta property="og:site_name" content={organizationName} />
+		<meta name="twitter:card" content="summary" />
+		<meta name="twitter:title" content={resolvedTitle} />
+		{seoDescription && <meta name="twitter:description" content={seoDescription} />}
 		<script type="application/ld+json" set:html={organizationJsonLd}></script>
 		<link rel="stylesheet" href="/vendor/aos.css" />
 		<link rel="stylesheet" href="/vendor/swiper-bundle.min.css" />

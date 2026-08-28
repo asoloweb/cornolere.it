@@ -1,5 +1,5 @@
 ---
-import { DIRECTUS_URL } from '../lib/directus';
+import { directusAssetUrl } from '../lib/directus';
 
 interface SlideItem {
 	titolo?: string;
@@ -15,6 +15,7 @@ interface Props {
 	sottotitolo?: string;
 	label?: string;
 	href?: string;
+	variant?: 'hero' | 'gallery';
 }
 
 const {
@@ -23,6 +24,7 @@ const {
 	sottotitolo = '',
 	label = '',
 	href = '',
+	variant = 'hero',
 } = Astro.props;
 
 const resolvedSlides =
@@ -42,34 +44,42 @@ const hasMultipleSlides = resolvedSlides.length > 1;
 const sliderId = `slider-${Math.random().toString(36).slice(2)}`;
 
 function resolveImageSrc(value: string | undefined) {
-	if (!value) return '';
-	if (value.startsWith('http://') || value.startsWith('https://') || value.startsWith('/')) {
-		return value;
-	}
-	return `${DIRECTUS_URL}/assets/${value}`;
+	return directusAssetUrl(value, {
+		width: 1800,
+		height: variant === 'gallery' ? 1200 : 1000,
+		quality: 85,
+		format: 'webp',
+		fit: 'cover',
+	});
 }
 ---
 
 <div
-	class="slider_block swiper"
+	class:list={['slider_block', 'swiper', { room_gallery: variant === 'gallery' }]}
 	id={sliderId}
 	data-swiper-enabled={hasMultipleSlides ? 'true' : 'false'}
 >
 	<div class="swiper-wrapper">
-		{resolvedSlides.map((slide) => (
+		{resolvedSlides.map((slide, index) => (
 			<div
 				class="swiper-slide single_slide"
-				style={slide.immagine ? `background-image: url('${resolveImageSrc(slide.immagine)}')` : ''}
+				style={variant === 'hero' && slide.immagine ? `background-image: url('${resolveImageSrc(slide.immagine)}')` : ''}
 			>
-				{slide.titolo && <h1 data-aos="fade-up" data-aos-duration="1500" set:html={slide.titolo} />}
-				{slide.sottotitolo && <h2 data-aos="fade-up" data-aos-duration="1800" set:html={slide.sottotitolo} />}
-				{slide.label && slide.href && (
-					<button data-aos="fade-up" data-aos-duration="2000" class="slider_button MainButton" type="button" data-href={slide.href}>
-						{slide.label}
-					</button>
-				)}
-				{slide.immagine && (
-					<span class="slide_image_sr" aria-hidden="true"></span>
+				{variant === 'gallery' ? (
+					<figure class="gallery_figure">
+						{slide.immagine && <img src={resolveImageSrc(slide.immagine)} alt={slide.titolo || `Foto ${index + 1} della camera`} loading={index === 0 ? 'eager' : 'lazy'} />}
+						{slide.sottotitolo && <figcaption set:html={slide.sottotitolo} />}
+					</figure>
+				) : (
+					<>
+						{slide.titolo && <h1 data-aos="fade-up" data-aos-duration="1500" set:html={slide.titolo} />}
+						{slide.sottotitolo && <h2 data-aos="fade-up" data-aos-duration="1800" set:html={slide.sottotitolo} />}
+						{slide.label && slide.href && (
+							<button data-aos="fade-up" data-aos-duration="2000" class="slider_button MainButton" type="button" data-href={slide.href}>
+								{slide.label}
+							</button>
+						)}
+					</>
 				)}
 			</div>
 		))}
@@ -161,10 +171,51 @@ function resolveImageSrc(value: string | undefined) {
 		justify-content: center;
 		gap: 8px;
 	}
-	.slide_image_sr {
-		display: none;
-	}
-	:global(.swiper-button-prev),
+		.room_gallery {
+			height: auto;
+			aspect-ratio: 3 / 2;
+			background: var(--surface-muted);
+		}
+
+		.room_gallery .single_slide {
+			min-height: 0;
+			padding: 0;
+			background: transparent;
+		}
+
+		.gallery_figure {
+			width: 100%;
+			height: 100%;
+			margin: 0;
+			position: relative;
+		}
+
+		.gallery_figure img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			display: block;
+		}
+
+		.gallery_figure figcaption {
+			position: absolute;
+			left: 24px;
+			bottom: 24px;
+			max-width: calc(100% - 48px);
+			padding: 10px 16px;
+			border-radius: 999px;
+			background: rgba(15, 61, 46, 0.84);
+			color: #fff;
+			font-size: 15px;
+		}
+
+		.room_gallery :global(.swiper-button-prev),
+		.room_gallery :global(.swiper-button-next) {
+			color: #fff;
+			text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+		}
+
+		:global(.swiper-button-prev),
 	:global(.swiper-button-next) {
 		color: #111;
 	}
@@ -173,6 +224,18 @@ function resolveImageSrc(value: string | undefined) {
 		.single_slide h1 {
 			font-size:45px;
 			line-height:50px;
+		}
+
+		.room_gallery {
+			width: calc(100% - 24px);
+			aspect-ratio: 4 / 3;
+			border-radius: 24px;
+		}
+
+		.gallery_figure figcaption {
+			left: 12px;
+			bottom: 12px;
+			max-width: calc(100% - 24px);
 		}
 	}
 </style>

@@ -1,10 +1,18 @@
 ---
 import { DIRECTUS_URL, directusItemsUrl } from '../lib/directus';
+import { applyTranslation, ui, type SiteLang } from '../lib/i18n';
+
+interface MenuTranslation {
+	languages_code?: string | { code?: string } | null;
+	label?: string | null;
+	custom_href?: string | null;
+}
 
 interface MenuItem {
 	id?: number | string;
 	label?: string;
 	custom_href?: string;
+	translations?: MenuTranslation[];
 	pages?: { pages_id?: PageItem | number | string }[] | PageItem[];
 }
 
@@ -15,10 +23,16 @@ interface Menu {
 	menu_items?: MenuItem[] | (number | string)[];
 }
 
+interface PageTranslation {
+	languages_code?: string | { code?: string } | null;
+	slug?: string | null;
+}
+
 interface PageItem {
 	id?: number;
 	slug?: string;
 	title?: string;
+	translations?: PageTranslation[];
 }
 
 interface Options {
@@ -26,9 +40,15 @@ interface Options {
 	footer_text?: string;
 }
 
+interface Props {
+	lang?: SiteLang;
+}
+
+const { lang = 'it' } = Astro.props;
+const uiStrings = ui(lang);
+
 let logoLightSrc = import.meta.env.PUBLIC_LOGO_LIGHT || '/favicon.svg';
 let footerText = '';
-const currentPath = Astro.url?.pathname ?? '/';
 const footerMenus = [
 	{ slug: 'menu-footer-1', items: [] as MenuItem[] },
 	{ slug: 'menu-footer-2', items: [] as MenuItem[] },
@@ -54,7 +74,7 @@ try {
 	}
 
 	const menuFields =
-		'menu_items.menu_items_id.id,menu_items.menu_items_id.label,menu_items.menu_items_id.custom_href,menu_items.menu_items_id.pages.pages_id.id,menu_items.menu_items_id.pages.pages_id.slug,menu_items.menu_items_id.pages.pages_id.title';
+		'menu_items.menu_items_id.id,menu_items.menu_items_id.label,menu_items.menu_items_id.custom_href,menu_items.menu_items_id.translations.languages_code,menu_items.menu_items_id.translations.label,menu_items.menu_items_id.translations.custom_href,menu_items.menu_items_id.pages.pages_id.id,menu_items.menu_items_id.pages.pages_id.slug,menu_items.menu_items_id.pages.pages_id.title,menu_items.menu_items_id.pages.pages_id.translations.languages_code,menu_items.menu_items_id.pages.pages_id.translations.slug';
 
 	for (const footerMenu of footerMenus) {
 		const url = directusItemsUrl('Menus');
@@ -112,41 +132,26 @@ function getItemPage(item: MenuItem): PageItem | null {
 	return normalizedPages[0] ?? null;
 }
 
-function getItemHref(item: MenuItem) {
-	if (item.custom_href) return item.custom_href;
+function resolveMenuEntry(item: MenuItem, index: number) {
+	const translated = applyTranslation(item as any, lang) as MenuItem;
 	const page = getItemPage(item);
-	if (!page?.slug || page.slug === 'home') return '/';
-	return `/${page.slug}`;
-}
+	const pageResolved = page ? (applyTranslation(page as any, lang) as PageItem) : null;
+	const title = translated.label || pageResolved?.title || page?.title || `Link ${index + 1}`;
 
-function getItemTitle(item: MenuItem, index: number) {
-	return item.label || getItemPage(item)?.title || `Link ${index + 1}`;
-}
-
-function getMenuItemIdClass(item: MenuItem, index: number, menuIndex: number) {
-	const raw = item.id != null ? String(item.id) : `menu-${menuIndex + 1}-index-${index + 1}`;
-	const safe = raw.toLowerCase().replace(/[^a-z0-9_-]+/g, '-');
-	return `menu_item_id_${safe}`;
-}
-
-function normalizePath(path: string) {
-	if (!path) return '/';
-	let cleanPath = path.split('?')[0].split('#')[0];
-	if (cleanPath.length > 1 && cleanPath.endsWith('/')) {
-		cleanPath = cleanPath.slice(0, -1);
+	let href = translated.custom_href || item.custom_href || '';
+	if (!href) {
+		const baseSlug = page?.slug;
+		const resolvedSlug = pageResolved?.slug || baseSlug;
+		if (lang === 'en' && resolvedSlug && resolvedSlug !== baseSlug) {
+			href = `/en/${resolvedSlug}`;
+		} else if (baseSlug) {
+			href = baseSlug === 'home' ? '/' : `/${baseSlug}`;
+		} else {
+			href = '/';
+		}
 	}
-	return cleanPath;
-}
 
-function isCurrentMenuItem(href: string) {
-	if (!href) return false;
-	const base = Astro.url?.origin || 'http://localhost';
-	try {
-		const url = new URL(href, base);
-		return normalizePath(url.pathname) === normalizePath(currentPath);
-	} catch {
-		return false;
-	}
+	return { title, href };
 }
 ---
 
@@ -161,14 +166,9 @@ function isCurrentMenuItem(href: string) {
 			{footerMenus.map((footerMenu) => (
 				<div class="FooterMenuColumn">
 					{footerMenu.items.map((item, index) => {
-						const href = getItemHref(item);
-						const title = getItemTitle(item, index);
-						const isCurrent = isCurrentMenuItem(href);
-						const className = isCurrent
-							? 'footer_menu_item current_footer_menu_item'
-							: 'footer_menu_item';
+						const { title, href } = resolveMenuEntry(item, index);
 						return (
-							<a href={href} class={className}>
+							<a href={href} class="footer_menu_item">
 								{title}
 							</a>
 						);

@@ -2,29 +2,40 @@
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { DIRECTUS_URL, directusItemsUrl } from '../lib/directus';
+import { ui, type SiteLang } from '../lib/i18n';
 import '../styles/global.css';
 
 export interface Props {
 	title: string;
 	seoTitle?: string;
 	seoDescription?: string;
+	lang?: SiteLang;
+	langSwitchHref?: string;
 }
 
-const { title, seoTitle, seoDescription } = Astro.props;
+const { title, seoTitle, seoDescription, lang = 'it', langSwitchHref } = Astro.props;
 const resolvedTitle = seoTitle || title;
+const htmlLang = lang === 'en' ? 'en' : 'it';
+const ogLocale = lang === 'en' ? 'en_US' : 'it_IT';
+const uiStrings = ui(lang);
+const defaultSwitchHref = lang === 'en' ? '/' : '/en/';
+const switchHref = langSwitchHref || defaultSwitchHref;
 const shouldLoadThirdPartyScripts = !import.meta.env.DEV;
 const siteUrl = (import.meta.env.PUBLIC_SITE_URL || 'https://cornolere.it').replace(/\/+$/, '');
 const canonicalUrl = new URL(Astro.url.pathname, `${siteUrl}/`).toString();
+const alternateLangUrl = new URL(switchHref, `${siteUrl}/`).toString();
+const itLangUrl = lang === 'it' ? canonicalUrl : alternateLangUrl;
+const enLangUrl = lang === 'en' ? canonicalUrl : alternateLangUrl;
 const organizationName =
 	import.meta.env.PUBLIC_ORGANIZATION_NAME || 'Cornolere';
 const organizationEmail =
 	import.meta.env.PUBLIC_ORGANIZATION_EMAIL || 'info@cornolere.it';
 const organizationPhone =
-	import.meta.env.PUBLIC_ORGANIZATION_PHONE || '+39 0423 223322';
+	import.meta.env.PUBLIC_ORGANIZATION_PHONE || '+39 0423 563133';
 const organizationStreetAddress =
-	import.meta.env.PUBLIC_ORGANIZATION_STREET || 'Strada Comunale Delle Corti, 61';
+	import.meta.env.PUBLIC_ORGANIZATION_STREET || 'Via Collalto, 42';
 const organizationLocality =
-	import.meta.env.PUBLIC_ORGANIZATION_CITY || 'Treviso';
+	import.meta.env.PUBLIC_ORGANIZATION_CITY || '31030 Castelcucco TV';
 const organizationCountry =
 	import.meta.env.PUBLIC_ORGANIZATION_COUNTRY || 'IT';
 const organizationAreaServed =
@@ -130,7 +141,7 @@ const organizationJsonLd = JSON.stringify(
 );
 ---
 
-<html lang="it">
+<html lang={htmlLang}>
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" type={faviconMimeType} href={logoLightSrc} />
@@ -142,7 +153,11 @@ const organizationJsonLd = JSON.stringify(
 		<title>{resolvedTitle}</title>
 		{seoDescription && <meta name="description" content={seoDescription} />}
 		<link rel="canonical" href={canonicalUrl} />
+		<link rel="alternate" hreflang="it" href={itLangUrl} />
+		<link rel="alternate" hreflang="en" href={enLangUrl} />
+		<link rel="alternate" hreflang="x-default" href={itLangUrl} />
 		<meta property="og:type" content="website" />
+		<meta property="og:locale" content={ogLocale} />
 		<meta property="og:locale" content="it_IT" />
 		<meta property="og:title" content={resolvedTitle} />
 		{seoDescription && <meta property="og:description" content={seoDescription} />}
@@ -172,11 +187,11 @@ const organizationJsonLd = JSON.stringify(
 		</script>
 	</head>
 	<body>
-		<Header />
+		<Header lang={lang} langSwitchHref={switchHref} />
 		<main>
 			<slot />
 		</main>
-		<Footer />
+		<Footer lang={lang} />
 		<script defer src="/vendor/aos.js"></script>
 		<script defer src="/scripts/aos-init.js"></script>
 		<script defer src="/scripts/swiper-init.js"></script>

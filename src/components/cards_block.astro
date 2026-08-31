@@ -75,19 +75,20 @@ function normalizeText(value: string) {
 
 function getCardIconClass(cardTitle: string | undefined) {
 	const title = normalizeText(cardTitle || '');
-	if (title.includes('camera')) return 'fa-solid fa-bed';
-	if (title.includes('colazione')) return 'fa-solid fa-mug-saucer';
-	if (title.includes('natura')) return 'fa-solid fa-tree';
-	if (title.includes('posizione')) return 'fa-solid fa-map-location-dot';
-	if (title.includes('parcheggio')) return 'fa-solid fa-square-parking';
+	if (title.includes('camer') || title.includes('room')) return 'fa-solid fa-bed';
+	if (title.includes('colazione') || title.includes('breakfast')) return 'fa-solid fa-mug-saucer';
+	if (title.includes('natura') || title.includes('nature')) return 'fa-solid fa-tree';
+	if (title.includes('posizione') || title.includes('location')) return 'fa-solid fa-map-location-dot';
+	if (title.includes('parcheggio') || title.includes('parking')) return 'fa-solid fa-square-parking';
 	if (title.includes('wi-fi') || title.includes('wifi')) return 'fa-solid fa-wifi';
 	return 'fa-solid fa-leaf';
 }
 
 const cards = normalizeCards(card);
 const normalizedTitle = normalizeText(titolo);
-const usesServiceIcons = normalizedTitle.includes('perche scegliere');
-const isRoomsBlock = normalizedTitle.includes('camere');
+const usesServiceIcons =
+	normalizedTitle.includes('perche scegliere') || normalizedTitle.includes('why choose');
+const isRoomsBlock = normalizedTitle.includes('camere') || normalizedTitle.includes('rooms');
 ---
 
 {cards.length > 0 && (

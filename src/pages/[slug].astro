@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageContent from '../components/PageContent.astro';
 import { directusFetch, directusItemsUrl } from '../lib/directus';
+import { PAGE_SLUG_TRANSLATION_FIELDS, findTranslationSlug } from '../lib/directusPages';
 
 type Page = {
 	status?: string;
@@ -13,13 +14,14 @@ type Page = {
 	hide_page_header?: boolean;
 	page_header?: string;
 	editor?: unknown[];
+	translations?: unknown[];
 };
 
 async function fetchPageBySlug(slug: string) {
 	const url = directusItemsUrl('pages');
 	url.searchParams.set(
 		'fields',
-		'*,editor.item.*,editor.item.slider.*,editor.item.slider.slides.item.*,editor.item.card.single_card_id.*,editor.item.card.single_card_id.link.id,editor.item.card.single_card_id.link.slug,editor.item.card.single_card_id.link.title,editor.item.accordion.single_accordion_id.*'
+		`*,${PAGE_SLUG_TRANSLATION_FIELDS},editor.item.*,editor.item.slider.*,editor.item.slider.slides.item.*,editor.item.card.single_card_id.*,editor.item.card.single_card_id.link.id,editor.item.card.single_card_id.link.slug,editor.item.card.single_card_id.link.title,editor.item.accordion.single_accordion_id.*`
 	);
 	url.searchParams.set('filter[status][_eq]', 'published');
 	url.searchParams.set('filter[_or][0][slug][_eq]', slug);
@@ -33,12 +35,16 @@ const routeSlug = String(Astro.params.slug || '').trim();
 const page =
 	(Astro.props?.page as Page | undefined) ||
 	(routeSlug ? await fetchPageBySlug(routeSlug) : null);
+const enSlug = findTranslationSlug(page?.translations, 'en');
+const langSwitchHref = enSlug ? (enSlug === 'home' ? '/en/' : `/en/${enSlug}`) : '/en/';
 ---
 
 <BaseLayout
 	title={page?.title || page?.Titolo || 'Pagina'}
 	seoTitle={page?.seo_title}
 	seoDescription={page?.seo_desc}
+	lang="it"
+	langSwitchHref={langSwitchHref}
 >
-	<PageContent page={page} />
+	<PageContent page={page} lang="it" />
 </BaseLayout>

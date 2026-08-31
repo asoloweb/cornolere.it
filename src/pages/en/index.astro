@@ -1,0 +1,40 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageContent from '../../components/PageContent.astro';
+import { directusFetch, directusItemsUrl } from '../../lib/directus';
+import { EN_PAGE_FIELDS } from '../../lib/directusPages';
+import { applyTranslation } from '../../lib/i18n';
+
+type Page = {
+	status?: string;
+	slug?: string;
+	title?: string;
+	seo_title?: string;
+	seo_desc?: string;
+	hide_page_header?: boolean;
+	editor?: unknown[];
+};
+
+async function fetchHomeEn() {
+	const url = directusItemsUrl('pages');
+	url.searchParams.set('fields', EN_PAGE_FIELDS);
+	url.searchParams.set('filter[status][_eq]', 'published');
+	url.searchParams.set('filter[slug][_eq]', 'home');
+	const response = await directusFetch(url);
+	const data = await response.json();
+	return (data?.data?.[0] as Page | undefined) ?? null;
+}
+
+const rawPage = await fetchHomeEn();
+const page = rawPage ? applyTranslation(rawPage, 'en') : null;
+---
+
+<BaseLayout
+	title={page?.title || 'Home'}
+	seoTitle={page?.seo_title}
+	seoDescription={page?.seo_desc}
+	lang="en"
+	langSwitchHref="/"
+>
+	<PageContent page={page} lang="en" />
+</BaseLayout>

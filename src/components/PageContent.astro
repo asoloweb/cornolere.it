@@ -6,6 +6,7 @@ import CardsBlock from '../components/cards_block.astro';
 import AccordionBlock from '../components/accordion_block.astro';
 import GoogleReviewsBlock from '../components/google_reviews_block.astro';
 import { DIRECTUS_URL } from '../lib/directus';
+import { applyTranslation, ui, type SiteLang } from '../lib/i18n';
 
 type HeroBlockItem = {
 	id: number;
@@ -129,14 +130,20 @@ interface Props {
 	notFoundTitle?: string;
 	notFoundMessage?: string;
 	showHeader?: boolean;
+	lang?: SiteLang;
 }
 
 const {
 	page,
-	notFoundTitle = 'Pagina non trovata',
-	notFoundMessage = 'La pagina richiesta non esiste.',
+	notFoundTitle,
+	notFoundMessage,
 	showHeader = true,
+	lang = 'it',
 } = Astro.props;
+
+const uiStrings = ui(lang);
+const notFoundTitleResolved = notFoundTitle || uiStrings.notFoundTitle;
+const notFoundMessageResolved = notFoundMessage || uiStrings.notFoundMessage;
 
 const blocks = Array.isArray(page?.editor) ? page.editor : [];
 const pageTitle = page?.title || page?.Titolo || '';
@@ -178,7 +185,7 @@ function resolveCollection(block: EditorEntry) {
 	return null;
 }
 
-function normalizeSlides(input: SliderItem | number | null | undefined) {
+function normalizeSlides(input: SliderItem | number | null | undefined, lang: SiteLang = 'it') {
 	if (!input || typeof input !== 'object') return [];
 	const rawSlides = (input as SliderItem).slides;
 	const slidesArray = Array.isArray(rawSlides)
@@ -189,45 +196,69 @@ function normalizeSlides(input: SliderItem | number | null | undefined) {
 	return slidesArray
 		.map((slide) => {
 			if (!slide) return null;
-			if ('item' in slide && typeof slide.item === 'object') return slide.item;
+			if ('item' in slide && typeof slide.item === 'object') {
+				return applyTranslation(slide.item as SlideItem, lang);
+			}
 			if ('titolo' in slide || 'sottotitolo' in slide || 'immagine' in slide) {
-				return slide as SlideItem;
+				return applyTranslation(slide as SlideItem, lang);
 			}
 			return null;
 		})
 		.filter((slide): slide is SlideItem => Boolean(slide));
 }
 
-function normalizeCards(input: CardRelation[] | SingleCardItem[] | undefined) {
+function normalizeCards(input: CardRelation[] | SingleCardItem[] | undefined, lang: SiteLang = 'it') {
 	if (!Array.isArray(input)) return [];
 	return input
 		.map((entry) => {
 			if (!entry || typeof entry !== 'object') return null;
+			let card: SingleCardItem | null = null;
 			if ('single_card_id' in entry) {
-				return entry.single_card_id && typeof entry.single_card_id === 'object'
-					? (entry.single_card_id as SingleCardItem)
-					: null;
+				card =
+					entry.single_card_id && typeof entry.single_card_id === 'object'
+						? (entry.single_card_id as SingleCardItem)
+						: null;
+			} else if ('titolo_card' in entry || 'descrizione' in entry || 'immagine' in entry || 'href' in entry) {
+				card = entry as SingleCardItem;
 			}
-			if ('titolo_card' in entry || 'descrizione' in entry || 'immagine' in entry || 'href' in entry) {
-				return entry as SingleCardItem;
+			if (!card) return null;
+			const translated = applyTranslation(card, lang);
+			if (
+				lang === 'en' &&
+				!translated.href &&
+				translated.link &&
+				typeof translated.link === 'object'
+			) {
+				const link = translated.link as PageRef & { translations?: unknown[] };
+				const linkEn = applyTranslation(link, 'en');
+				const baseSlug = link.slug;
+				const enSlug = linkEn.slug;
+				if (enSlug && enSlug !== baseSlug) {
+					translated.href = `/en/${enSlug}`;
+				} else if (baseSlug) {
+					translated.href = `/${baseSlug}`;
+				}
 			}
-			return null;
+			return translated;
 		})
 		.filter((card): card is SingleCardItem => Boolean(card));
 }
 
-function normalizeAccordionItems(input: AccordionRelation[] | SingleAccordionItem[] | undefined) {
+function normalizeAccordionItems(
+	input: AccordionRelation[] | SingleAccordionItem[] | undefined,
+	lang: SiteLang = 'it'
+) {
 	if (!Array.isArray(input)) return [];
 	return input
 		.map((entry) => {
 			if (!entry || typeof entry !== 'object') return null;
 			if ('single_accordion_id' in entry) {
 				return entry.single_accordion_id && typeof entry.single_accordion_id === 'object'
-					? (entry.single_accordion_id as SingleAccordionItem)
+					? applyTranslation(entry.single_accordion_id as SingleAccordionItem, lang)
 					: null;
 			}
 			if ('titolo' in entry || 'descrizione' in entry) {
-				return entry as SingleAccordionItem;
+				return applyTranslation(entry as SingleAccordionItem, lang);
 			}
 			return null;
 		})
@@ -279,7 +310,7 @@ function getBlockDomId(block: EditorEntry, collection: string, index: number) {
 
 			switch (collection) {
 				case 'hero_block': {
-					const hero = block.item as HeroBlockItem;
+					const hero = applyTranslation(block.item as HeroBlockItem, lang);
 					blockContent = (
 						<HeroBlock
 							titolo={hero.titolo}
@@ -295,7 +326,7 @@ function getBlockDomId(block: EditorEntry, collection: string, index: number) {
 					break;
 				}
 				case 'title_block': {
-					const title = block.item as TitleBlockItem;
+					const title = applyTranslation(block.item as TitleBlockItem, lang);
 					blockContent = <TitleBlock item={String(title.id ?? '')} titolo={title.title} />;
 					break;
 				}
@@ -304,20 +335,20 @@ function getBlockDomId(block: EditorEntry, collection: string, index: number) {
 					const slider = sliderBlock?.slider && typeof sliderBlock.slider === 'object'
 						? sliderBlock.slider
 						: null;
-					const slides = normalizeSlides(slider);
+					const slides = normalizeSlides(slider, lang);
 					const variant = slider?.titolo?.toLowerCase().includes('gallery') ? 'gallery' : 'hero';
 					blockContent = <SliderBlock slides={slides} variant={variant} />;
 					break;
 				}
 				case 'cards_block': {
-					const cardsBlock = block.item as CardsBlockItem;
-					const cards = normalizeCards(cardsBlock.card);
+					const cardsBlock = applyTranslation(block.item as CardsBlockItem, lang);
+					const cards = normalizeCards(cardsBlock.card, lang);
 					blockContent = <CardsBlock titolo={cardsBlock.titolo} card={cards} />;
 					break;
 				}
 				case 'accordion_block': {
-					const accordionBlock = block.item as AccordionBlockItem;
-					const items = normalizeAccordionItems(accordionBlock.accordion);
+					const accordionBlock = applyTranslation(block.item as AccordionBlockItem, lang);
+					const items = normalizeAccordionItems(accordionBlock.accordion, lang);
 					blockContent = (
 						<AccordionBlock
 							titolo={accordionBlock.Titolo || accordionBlock.titolo}
@@ -357,7 +388,7 @@ function getBlockDomId(block: EditorEntry, collection: string, index: number) {
 	</>
 ) : (
 	<>
-		<h1>{notFoundTitle}</h1>
-		<p>{notFoundMessage}</p>
+		<h1>{notFoundTitleResolved}</h1>
+		<p>{notFoundMessageResolved}</p>
 	</>
 )}

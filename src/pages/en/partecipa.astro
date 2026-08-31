@@ -1,22 +1,21 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import PageContent from '../components/PageContent.astro';
-import PartecipaForm from '../components/PartecipaForm.astro';
-import GoogleReviewsBlock from '../components/google_reviews_block.astro';
-import HeroBlock from '../components/hero_block.astro';
-import { DIRECTUS_URL, directusItemsUrl } from '../lib/directus';
-import { PAGE_SLUG_TRANSLATION_FIELDS } from '../lib/directusPages';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageContent from '../../components/PageContent.astro';
+import PartecipaForm from '../../components/PartecipaForm.astro';
+import GoogleReviewsBlock from '../../components/google_reviews_block.astro';
+import HeroBlock from '../../components/hero_block.astro';
+import { DIRECTUS_URL, directusFetch, directusItemsUrl } from '../../lib/directus';
+import { EN_PAGE_FIELDS } from '../../lib/directusPages';
+import { applyTranslation } from '../../lib/i18n';
 
 type Page = {
 	status?: string;
 	slug?: string;
 	title?: string;
-	Titolo?: string;
 	seo_title?: string;
 	seo_desc?: string;
 	description?: string;
 	hide_page_header?: boolean;
-	page_header?: string;
 	featured_image?: string;
 	editor?: unknown[];
 };
@@ -35,30 +34,27 @@ type HeroBlockItem = {
 
 async function fetchPartecipaPage() {
 	const url = directusItemsUrl('pages');
-	url.searchParams.set(
-		'fields',
-		`*,${PAGE_SLUG_TRANSLATION_FIELDS},slug.*,editor.item.*,editor.item.slider.*,editor.item.slider.slides.item.*,editor.item.card.single_card_id.*,editor.item.card.single_card_id.link.id,editor.item.card.single_card_id.link.slug,editor.item.card.single_card_id.link.title,editor.item.accordion.single_accordion_id.*`
-	);
+	url.searchParams.set('fields', EN_PAGE_FIELDS);
 	url.searchParams.set('filter[status][_eq]', 'published');
 	url.searchParams.set('filter[slug][_eq]', 'partecipa');
-
-	const response = await fetch(url);
+	const response = await directusFetch(url);
 	const data = await response.json();
 	return (data?.data?.[0] as Page | undefined) ?? null;
 }
 
-const page: Page | null = await fetchPartecipaPage();
-const pageTitle = page?.title || page?.Titolo || '';
+const rawPage: Page | null = await fetchPartecipaPage();
+const page = rawPage ? applyTranslation(rawPage, 'en') : null;
+const pageTitle = page?.title || '';
 const pageDescription = page?.description || '';
 
-const homeHero14: HeroBlockItem = {
+const homeHeroEn: HeroBlockItem = {
 	id: 14,
-	titolo: 'Richiedi il tuo <span>soggiorno al B&B Cornolere</span>',
+	titolo: 'Book your <span>stay at B&B Cornolere</span>',
 	sottotitolo:
-		'Indicaci le date desiderate e le tue preferenze: ti risponderemo al piu presto con disponibilita, servizi inclusi e informazioni utili per organizzare il soggiorno.',
-	paragrafo: '<p>Camere accoglienti, colazione genuina e tranquillita immersa nel verde.</p>',
-	label: 'Scopri la struttura >',
-	href: '/la-struttura',
+		'Tell us your preferred dates and your preferences: we will reply as soon as possible with availability, included services and useful information for planning your stay.',
+	paragrafo: '<p>Welcoming rooms, a genuine breakfast and tranquillity immersed in nature.</p>',
+	label: 'Discover the property >',
+	href: '/en/the-structure',
 	immagine: '8b687459-9b7e-489a-bbcd-f1bc80f43718',
 	inverti: false,
 	background_color: '',
@@ -77,37 +73,37 @@ const showPageHeader = page ? !page.hide_page_header : false;
 ---
 
 <BaseLayout
-	title={page?.title || page?.Titolo || 'Richiesta soggiorno'}
+	title={pageTitle || 'Book Your Stay'}
 	seoTitle={page?.seo_title}
 	seoDescription={page?.seo_desc}
-	lang="it"
-	langSwitchHref="/en/partecipa"
+	lang="en"
+	langSwitchHref="/partecipa"
 >
 	{page && (
 		<div class="partecipa_preheader">
 			<div class="partecipa_preheader_inner">
 				<section id="block-hero-block-14-2" class="editor_block editor_block_hero_block">
 					<HeroBlock
-						item={String(homeHero14.id ?? '14')}
-						titolo={homeHero14.titolo}
-						sottotitolo={homeHero14.sottotitolo}
-						paragrafo={homeHero14.paragrafo}
-						label={homeHero14.label}
-						href={homeHero14.href}
-						immagine={homeHero14.immagine}
-						inverti={homeHero14.inverti}
-						background_color={homeHero14.background_color}
+						item={String(homeHeroEn.id ?? '14')}
+						titolo={homeHeroEn.titolo}
+						sottotitolo={homeHeroEn.sottotitolo}
+						paragrafo={homeHeroEn.paragrafo}
+						label={homeHeroEn.label}
+						href={homeHeroEn.href}
+						immagine={homeHeroEn.immagine}
+						inverti={homeHeroEn.inverti}
+						background_color={homeHeroEn.background_color}
 					/>
 				</section>
 				<div class="partecipa_preheader_form">
-				<PartecipaForm title="Richiedi disponibilita per il tuo soggiorno" />
+					<PartecipaForm title="Request availability for your stay" lang="en" />
 				</div>
 			</div>
 		</div>
 	)}
 	<GoogleReviewsBlock
-		titolo="Cosa dicono gli ospiti"
-		sottotitolo="Recensioni Google del Bed and Breakfast Cornolere"
+		titolo="What our guests say"
+		sottotitolo="Google reviews of the Bed and Breakfast Cornolere"
 		google_business_query="Bed and Breakfast Cornolere"
 		numero_recensioni={6}
 	/>
@@ -127,8 +123,9 @@ const showPageHeader = page ? !page.hide_page_header : false;
 	<PageContent
 		page={page}
 		showHeader={false}
-		notFoundTitle="Pagina partecipa non trovata"
-		notFoundMessage="La pagina partecipa richiesta non esiste."
+		lang="en"
+		notFoundTitle="Page not found"
+		notFoundMessage="The requested page does not exist."
 	/>
 </BaseLayout>
 
@@ -151,8 +148,6 @@ const showPageHeader = page ? !page.hide_page_header : false;
 		min-width: 0;
 	}
 
-
-
 	#block-hero-block-14-2 :global(.hero_block) {
 		margin: 0;
 		max-width: 100%;
@@ -173,7 +168,7 @@ const showPageHeader = page ? !page.hide_page_header : false;
 	}
 
 	.partecipa_preheader_form :global(.contact_form)::before {
-		content: 'Risposta entro 24 ore';
+		content: 'Reply within 24 hours';
 		position: absolute;
 		top: -14px;
 		left: 20px;
@@ -192,6 +187,5 @@ const showPageHeader = page ? !page.hide_page_header : false;
 		.partecipa_preheader_inner {
 			grid-template-columns: 1fr;
 		}
-
 	}
 </style>

@@ -1,12 +1,20 @@
 ---
 
 import { DIRECTUS_URL, directusItemsUrl } from '../lib/directus';
+import { applyTranslation, ui, type SiteLang } from '../lib/i18n';
+
+interface MenuTranslation {
+	languages_code?: string | { code?: string } | null;
+	label?: string | null;
+	custom_href?: string | null;
+}
 
 interface MenuItem {
 	id?: number | string;
 	sort?: number | null;
 	label?: string;
 	custom_href?: string;
+	translations?: MenuTranslation[];
 	pages?: { pages_id?: PageItem | number | string }[] | PageItem[];
 }
 
@@ -17,16 +25,31 @@ interface Menu {
 	menu_items?: MenuItem[] | (number | string)[];
 }
 
+interface PageTranslation {
+	languages_code?: string | { code?: string } | null;
+	slug?: string | null;
+}
+
 interface PageItem {
 	id?: number;
 	slug?: string;
 	title?: string;
+	translations?: PageTranslation[];
 }
 
 interface Options {
 	logo_dark?: string;
 	logo_light?: string;
 }
+
+interface Props {
+	lang?: SiteLang;
+	langSwitchHref?: string;
+}
+
+const { lang = 'it', langSwitchHref } = Astro.props;
+const uiStrings = ui(lang);
+const switchHref = langSwitchHref || (lang === 'en' ? '/' : '/en/');
 
 let logoDarkSrc =
 	import.meta.env.PUBLIC_LOGO_DARK || import.meta.env.PUBLIC_LOGO_LIGHT || '/favicon.svg';
@@ -53,7 +76,7 @@ try {
 	url.searchParams.set('filter[slug][_eq]', 'menu-principale');
 	url.searchParams.set(
 		'fields',
-		'menu_items.menu_items_id.id,menu_items.menu_items_id.sort,menu_items.menu_items_id.label,menu_items.menu_items_id.custom_href,menu_items.menu_items_id.pages.pages_id.id,menu_items.menu_items_id.pages.pages_id.slug,menu_items.menu_items_id.pages.pages_id.title'
+		'menu_items.menu_items_id.id,menu_items.menu_items_id.sort,menu_items.menu_items_id.label,menu_items.menu_items_id.custom_href,menu_items.menu_items_id.translations.languages_code,menu_items.menu_items_id.translations.label,menu_items.menu_items_id.translations.custom_href,menu_items.menu_items_id.pages.pages_id.id,menu_items.menu_items_id.pages.pages_id.slug,menu_items.menu_items_id.pages.pages_id.title,menu_items.menu_items_id.pages.pages_id.translations.languages_code,menu_items.menu_items_id.pages.pages_id.translations.slug'
 	);
 	const response = await fetch(url);
 	if (!response.ok) {
@@ -106,11 +129,26 @@ function getItemPage(item: MenuItem): PageItem | null {
 	return normalizedPages[0] ?? null;
 }
 
-function getItemHref(item: MenuItem) {
-	if (item.custom_href) return item.custom_href;
+function resolveMenuEntry(item: MenuItem, index: number) {
+	const translated = applyTranslation(item as any, lang) as MenuItem;
 	const page = getItemPage(item);
-	if (!page?.slug || page.slug === 'home') return '/';
-	return `/${page.slug}`;
+	const pageResolved = page ? (applyTranslation(page as any, lang) as PageItem) : null;
+	const label = translated.label || pageResolved?.title || page?.title || `Link ${index + 1}`;
+
+	let href = translated.custom_href || item.custom_href || '';
+	if (!href) {
+		const baseSlug = page?.slug;
+		const resolvedSlug = pageResolved?.slug || baseSlug;
+		if (lang === 'en' && resolvedSlug && resolvedSlug !== baseSlug) {
+			href = `/en/${resolvedSlug}`;
+		} else if (baseSlug) {
+			href = baseSlug === 'home' ? '/' : `/${baseSlug}`;
+		} else {
+			href = '/';
+		}
+	}
+
+	return { label, href };
 }
 
 function normalizePath(path: string) {
@@ -133,14 +171,6 @@ function isCurrentMenuItem(href: string) {
 	}
 }
 
-function getItemTitle(item: MenuItem, index: number) {
-	return (
-		item.label ||
-		getItemPage(item)?.title ||
-		`Link ${index + 1}`
-	);
-}
-
 function getMenuItemIdClass(item: MenuItem, index: number) {
 	const raw = item.id != null ? String(item.id) : `index-${index + 1}`;
 	const safe = raw.toLowerCase().replace(/[^a-z0-9_-]+/g, '-');
@@ -149,11 +179,11 @@ function getMenuItemIdClass(item: MenuItem, index: number) {
 ---
 <div class="TopBar">
 	<a target="_blank" href="https://maps.app.goo.gl/Eg3tNKrkvrEuo1jz7">Bed and Breakfast Cornolere - Castelcucco</a>
-	<a href="tel:+390423223322">0423.223322</a>
+	<a href="tel:+390423563133">0423 563133</a>
 	<a href="mailto:info@cornolere.it">info@cornolere.it</a>
 </div>
 <header class="site-header">
-	<nav aria-label="Menu principale">
+	<nav aria-label={uiStrings.menuAria}>
 		<div>
 			<a href="/" aria-label="Vai alla home page del Bed and Breakfast Cornolere">
 				<img class="MenuLogo" src={logoDarkSrc} alt="Bed and Breakfast Cornolere" />
@@ -161,8 +191,7 @@ function getMenuItemIdClass(item: MenuItem, index: number) {
 		</div>
 		<div class="MenuItemsContainer">
 		{menuItems.map((item, index) => {
-			const href = getItemHref(item);
-			const title = getItemTitle(item, index);
+			const { label, href } = resolveMenuEntry(item, index);
 			const isCurrent = isCurrentMenuItem(href);
 			const idClass = getMenuItemIdClass(item, index);
 			const className = isCurrent
@@ -170,12 +199,19 @@ function getMenuItemIdClass(item: MenuItem, index: number) {
 				: `menu_item ${idClass}`;
 			return (
 				<a href={href} class={className}>
-					{title}
+					{label}
 				</a>
 			);
 		})}
+		<a
+			href={switchHref}
+			class="menu_item lang_switcher"
+			aria-label={lang === 'it' ? 'Switch to English' : "Passa all'italiano"}
+		>
+			{uiStrings.switchLangLabel}
+		</a>
 		</div>
-		<button class="hamburger_button mburger" type="button" aria-label="Menu" aria-expanded="false">
+		<button class="hamburger_button mburger" type="button" aria-label={uiStrings.hamburgerAria} aria-expanded="false">
 			<b></b>
 			<b></b>
 			<b></b>

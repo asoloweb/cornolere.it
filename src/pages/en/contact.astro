@@ -1,5 +1,5 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 
 const organizationEmail = import.meta.env.PUBLIC_ORGANIZATION_EMAIL || 'info@cornolere.it';
 const organizationPhone = import.meta.env.PUBLIC_ORGANIZATION_PHONE || '+39 0423 563133';
@@ -8,28 +8,28 @@ const organizationCity = import.meta.env.PUBLIC_ORGANIZATION_CITY || '31030 Cast
 ---
 
 <BaseLayout
-	title="Richiesta informazioni"
-	seoTitle="Richiesta informazioni - B&B Cornolere"
-	seoDescription="Richiedi informazioni o prenota il tuo soggiorno al B&B Cornolere. Compila il form con le date desiderate o contattaci direttamente."
-	lang="it"
-	langSwitchHref="/en/contact"
+	title="Contact Us"
+	seoTitle="Contact Us - B&B Cornolere"
+	seoDescription="Request information or book your stay at B&B Cornolere. Fill in the form with your preferred dates or contact us directly."
+	lang="en"
+	langSwitchHref="/richiesta-informazioni"
 >
 	<section class="contact_page">
 		<div class="contact_page_inner">
 
 			<div class="contact_page_info" data-aos="fade-right" data-aos-duration="1200">
-				<h1>Richiesta informazioni</h1>
+				<h1>Contact Us</h1>
 				<p class="contact_page_info_lead">
-					Hai domande o vuoi prenotare il tuo soggiorno? Compila il form a lato
-					con le date desiderate e ti risponderemo entro 24 ore.
-					Puoi anche contattarci direttamente usando i riferimenti qui sotto.
+					Have questions or want to book your stay? Fill in the form beside
+					with your preferred dates and we will reply within 24 hours.
+					You can also contact us directly using the details below.
 				</p>
 
 				<ul class="contact_page_info_list">
 					<li>
 						<span class="contact_page_info_icon"><i class="fa-solid fa-phone"></i></span>
 						<div>
-							<strong>Telefono</strong>
+							<strong>Phone</strong>
 							<a href={`tel:${organizationPhone.replace(/\s/g, '')}`}>{organizationPhone}</a>
 						</div>
 					</li>
@@ -43,8 +43,8 @@ const organizationCity = import.meta.env.PUBLIC_ORGANIZATION_CITY || '31030 Cast
 					<li>
 						<span class="contact_page_info_icon"><i class="fa-solid fa-location-dot"></i></span>
 						<div>
-							<strong>Indirizzo</strong>
-							<span>{organizationStreet}<br />{organizationCity}</span>
+							<strong>Address</strong>
+							<span>{organizationStreet}<br />{organizationCity}, Italy</span>
 						</div>
 					</li>
 				</ul>
@@ -52,15 +52,15 @@ const organizationCity = import.meta.env.PUBLIC_ORGANIZATION_CITY || '31030 Cast
 
 			<div class="contact_page_form_wrap" data-aos="fade-left" data-aos-duration="1200">
 				<form class="contact_page_form" id="contact-page-form">
-					<h2>Invia una richiesta</h2>
+					<h2>Send a request</h2>
 
 					<label class="cpf_field">
-						<span>Nome e cognome *</span>
+						<span>Full name *</span>
 						<input name="nome" type="text" autocomplete="name" required />
 					</label>
 
 					<label class="cpf_field">
-						<span>Telefono</span>
+						<span>Phone</span>
 						<input name="telefono" type="tel" autocomplete="tel" />
 					</label>
 
@@ -70,32 +70,32 @@ const organizationCity = import.meta.env.PUBLIC_ORGANIZATION_CITY || '31030 Cast
 					</label>
 
 					<label class="cpf_field">
-						<span>Indirizzo</span>
+						<span>Address</span>
 						<input name="indirizzo" type="text" autocomplete="street-address" />
 					</label>
 
 					<div class="cpf_grid">
 						<label class="cpf_field">
-							<span>Data inizio</span>
+							<span>Start date</span>
 							<input name="data_inizio" type="date" />
 						</label>
 						<label class="cpf_field">
-							<span>Data fine</span>
+							<span>End date</span>
 							<input name="data_fine" type="date" />
 						</label>
 					</div>
 
 					<label class="cpf_field">
-						<span>Messaggio *</span>
+						<span>Message *</span>
 						<textarea name="messaggio" rows={5} required></textarea>
 					</label>
 
 					<label class="cpf_privacy">
 						<input name="privacy" type="checkbox" required />
-						<span>Accetto la <a href="/privacy-policy">privacy policy</a></span>
+						<span>I accept the <a href="/en/privacy-policy">privacy policy</a></span>
 					</label>
 
-					<button class="cpf_submit MainButton" type="submit">Invia richiesta</button>
+					<button class="cpf_submit MainButton" type="submit">Send request</button>
 					<p class="cpf_status" role="status" aria-live="polite"></p>
 				</form>
 			</div>
@@ -113,7 +113,7 @@ const organizationCity = import.meta.env.PUBLIC_ORGANIZATION_CITY || '31030 Cast
 		form.addEventListener('submit', async (e) => {
 			e.preventDefault();
 			if (submitBtn instanceof HTMLButtonElement) submitBtn.disabled = true;
-			if (statusEl) { statusEl.textContent = 'Invio in corso...'; statusEl.dataset.state = 'loading'; }
+			if (statusEl) { statusEl.textContent = 'Sending...'; statusEl.dataset.state = 'loading'; }
 
 			try {
 				const fd = new FormData(form);
@@ -134,12 +134,12 @@ const organizationCity = import.meta.env.PUBLIC_ORGANIZATION_CITY || '31030 Cast
 				});
 				const data = await res.json();
 
-				if (!res.ok) throw new Error(data?.error || 'Errore');
+				if (!res.ok) throw new Error(data?.error || 'Error');
 
 				form.reset();
-				if (statusEl) { statusEl.textContent = 'Richiesta inviata con successo!'; statusEl.dataset.state = 'success'; }
+				if (statusEl) { statusEl.textContent = 'Request sent successfully!'; statusEl.dataset.state = 'success'; }
 			} catch (err) {
-				if (statusEl) { statusEl.textContent = err?.message || "Errore durante l'invio."; statusEl.dataset.state = 'error'; }
+				if (statusEl) { statusEl.textContent = err?.message || 'Error sending the request.'; statusEl.dataset.state = 'error'; }
 			} finally {
 				if (submitBtn instanceof HTMLButtonElement) submitBtn.disabled = false;
 			}
@@ -161,7 +161,6 @@ const organizationCity = import.meta.env.PUBLIC_ORGANIZATION_CITY || '31030 Cast
 		align-items: start;
 	}
 
-	/* --- Left column --- */
 	.contact_page_info h1 {
 		font-size: clamp(42px, 5vw, 66px);
 		line-height: 0.98;
@@ -223,7 +222,6 @@ const organizationCity = import.meta.env.PUBLIC_ORGANIZATION_CITY || '31030 Cast
 		text-decoration: underline;
 	}
 
-	/* --- Right column --- */
 	.contact_page_form_wrap {
 		position: sticky;
 		top: 20px;

@@ -1,11 +1,50 @@
 ---
 import { DIRECTUS_URL } from '../lib/directus';
+import type { SiteLang } from '../lib/i18n';
 
 interface Props {
 	title?: string;
+	lang?: SiteLang;
 }
 
-const { title = 'Richiedi disponibilita' } = Astro.props;
+const { title = 'Richiedi disponibilita', lang = 'it' } = Astro.props;
+
+const L =
+	lang === 'en'
+		? {
+				nome: 'Full name',
+				email: 'Email',
+				telefono: 'Phone',
+				arrivo: 'Arrival',
+				partenza: 'Departure',
+				ospiti: 'Number of guests',
+				messaggio: 'Message',
+				placeholder:
+					'Tell us the dates, the number of guests and any special requirements.',
+				privacy: 'I accept the <a href="/en/privacy-policy">privacy policy</a>',
+				submit: 'Send request',
+				sending: 'Sending...',
+				success: 'Request sent successfully.',
+				error: 'Error sending. Please try again later.',
+				notConfigured: 'Form not configured. Set PUBLIC_DIRECTUS_WEBHOOK_RICHIESTE.',
+			}
+		: {
+				nome: 'Nome e cognome',
+				email: 'Email',
+				telefono: 'Telefono',
+				arrivo: 'Arrivo',
+				partenza: 'Partenza',
+				ospiti: 'Numero ospiti',
+				messaggio: 'Messaggio',
+				placeholder: 'Indicaci le date, il numero di ospiti e qualsiasi esigenza particolare.',
+				privacy: 'Accetto la <a href="/privacy-policy">privacy policy</a>',
+				submit: 'Invia richiesta',
+				sending: 'Invio in corso...',
+				success: 'Richiesta inviata con successo.',
+				error: 'Errore durante l\'invio. Riprova piu tardi.',
+				notConfigured:
+					'Form non configurato. Imposta PUBLIC_DIRECTUS_WEBHOOK_RICHIESTE o PUBLIC_DIRECTUS_FLOW_TRIGGER_ID.',
+			};
 
 const flowTriggerId = import.meta.env.PUBLIC_DIRECTUS_FLOW_TRIGGER_ID;
 const webhookUrl = import.meta.env.PUBLIC_DIRECTUS_WEBHOOK_RICHIESTE
@@ -18,57 +57,57 @@ const webhookUrl = import.meta.env.PUBLIC_DIRECTUS_WEBHOOK_RICHIESTE
 <section class="contact_form">
 	<h2 class="contact_form_title">{title}</h2>
 
-	<form class="contact_form_form" method="post" data-webhook-url={webhookUrl}>
+	<form
+		class="contact_form_form"
+		method="post"
+		data-webhook-url={webhookUrl}
+		data-status-sending={L.sending}
+		data-status-success={L.success}
+		data-status-error={L.error}
+	>
 		<label class="contact_form_field">
-			<span>Nome e cognome</span>
+			<span>{L.nome}</span>
 			<input name="nome_cognome" type="text" autocomplete="name" required />
 		</label>
 
 		<label class="contact_form_field">
-			<span>Email</span>
+			<span>{L.email}</span>
 			<input name="email" type="email" autocomplete="email" required />
 		</label>
 
 		<label class="contact_form_field">
-			<span>Telefono</span>
+			<span>{L.telefono}</span>
 			<input name="telefono" type="tel" autocomplete="tel" />
 		</label>
 
 		<div class="contact_form_grid">
 			<label class="contact_form_field">
-				<span>Arrivo</span>
+				<span>{L.arrivo}</span>
 				<input name="arrivo" type="date" />
 			</label>
 
 			<label class="contact_form_field">
-				<span>Partenza</span>
+				<span>{L.partenza}</span>
 				<input name="partenza" type="date" />
 			</label>
 		</div>
 
 		<label class="contact_form_field">
-			<span>Numero ospiti</span>
+			<span>{L.ospiti}</span>
 			<input name="ospiti" type="number" min="1" inputmode="numeric" />
 		</label>
 
 		<label class="contact_form_field">
-			<span>Messaggio</span>
-			<textarea
-				name="messaggio"
-				rows={5}
-				placeholder="Indicaci le date, il numero di ospiti e qualsiasi esigenza particolare."
-				required
-			></textarea>
+			<span>{L.messaggio}</span>
+			<textarea name="messaggio" rows={5} placeholder={L.placeholder} required></textarea>
 		</label>
 
 		<label class="contact_form_privacy">
 			<input name="privacy" type="checkbox" required />
-			<span>
-				Accetto la <a href="/privacy-policy">privacy policy</a>
-			</span>
+			<span set:html={L.privacy} />
 		</label>
 
-		<button class="contact_form_submit MainButton" type="submit">Invia richiesta</button>
+		<button class="contact_form_submit MainButton" type="submit">{L.submit}</button>
 		<p class="contact_form_status" role="status" aria-live="polite"></p>
 	</form>
 </section>
@@ -79,6 +118,9 @@ const webhookUrl = import.meta.env.PUBLIC_DIRECTUS_WEBHOOK_RICHIESTE
 		const statusEl = form.querySelector('.contact_form_status');
 		const submitButton = form.querySelector('.contact_form_submit');
 		const webhookUrl = form.dataset.webhookUrl;
+		const msgSending = form.dataset.statusSending || 'Invio in corso...';
+		const msgSuccess = form.dataset.statusSuccess || 'Richiesta inviata con successo.';
+		const msgError = form.dataset.statusError || "Errore durante l'invio. Riprova piu tardi.";
 
 		form.addEventListener('submit', async (event) => {
 			event.preventDefault();
@@ -95,7 +137,7 @@ const webhookUrl = import.meta.env.PUBLIC_DIRECTUS_WEBHOOK_RICHIESTE
 				submitButton.disabled = true;
 			}
 			if (statusEl) {
-				statusEl.textContent = 'Invio in corso...';
+				statusEl.textContent = msgSending;
 				statusEl.dataset.state = 'loading';
 			}
 
@@ -147,13 +189,13 @@ const webhookUrl = import.meta.env.PUBLIC_DIRECTUS_WEBHOOK_RICHIESTE
 
 				form.reset();
 				if (statusEl) {
-					statusEl.textContent = 'Richiesta inviata con successo.';
+					statusEl.textContent = msgSuccess;
 					statusEl.dataset.state = 'success';
 				}
 			} catch (error) {
 				console.error('Errore invio richiesta:', error);
 				if (statusEl) {
-					statusEl.textContent = "Errore durante l'invio. Riprova piu tardi.";
+					statusEl.textContent = msgError;
 					statusEl.dataset.state = 'error';
 				}
 			} finally {

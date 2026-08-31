@@ -221,9 +221,31 @@ function resolveImageSrc(value: string | undefined) {
 	}
 
 	@media (max-width: 640px) {
+		.slider_block:not(.room_gallery) {
+			height: 68vh;
+			min-height: 420px;
+		}
+
+		.slider_block:not(.room_gallery) .single_slide {
+			justify-content: flex-end;
+			padding: 26px 22px 34px;
+			gap: 6px;
+		}
+
 		.single_slide h1 {
-			font-size:45px;
-			line-height:50px;
+			font-size: 34px;
+			line-height: 38px;
+			margin: 0;
+		}
+
+		.single_slide h2 {
+			font-size: 15px;
+			line-height: 1.45;
+		}
+
+		.slider_button {
+			font-size: 15px;
+			margin-top: 4px;
 		}
 
 		.room_gallery {

@@ -7,9 +7,32 @@ function jsonResponse(status, body) {
 	});
 }
 
-async function sendSmtp(env, { nome, telefono, email, indirizzo, dataInizio, dataFine, messaggio }) {
-	const { connect } = await import('cloudflare:sockets');
+async function openSocket(hostname, port, secure) {
+	const ua = typeof navigator !== 'undefined' && navigator.userAgent ? navigator.userAgent : '';
 
+	if (ua.includes('Cloudflare-Workers')) {
+		const spec = 'cloudflare:sockets';
+		const { connect } = await import(/* @vite-ignore */ spec);
+		return connect({ hostname, port }, { secure });
+	}
+
+	const tls = await import('node:tls');
+	const net = await import('node:net');
+	const nodeSocket = secure
+		? await new Promise((resolve, reject) => {
+				const s = tls.connect({ host: hostname, port, rejectUnauthorized: false }, () => resolve(s));
+				s.once('error', reject);
+			})
+		: await new Promise((resolve, reject) => {
+				const s = net.connect({ host: hostname, port }, () => resolve(s));
+				s.once('error', reject);
+			});
+
+	const { Duplex } = await import('node:stream');
+	return Duplex.toWeb(nodeSocket);
+}
+
+async function sendSmtp(env, { nome, telefono, email, indirizzo, dataInizio, dataFine, messaggio }) {
 	const smtpHost = env.SMTP_HOST;
 	const smtpPort = Number(env.SMTP_PORT || 587);
 	const smtpUser = env.SMTP_USER;
@@ -18,7 +41,7 @@ async function sendSmtp(env, { nome, telefono, email, indirizzo, dataInizio, dat
 	const smtpTo = env.SMTP_TO || 'info@cornolere.it';
 
 	const secure = smtpPort === 465;
-	const socket = connect({ hostname: smtpHost, port: smtpPort }, { secure });
+	const socket = await openSocket(smtpHost, smtpPort, secure);
 
 	const reader = socket.readable.getReader();
 	const writer = socket.writable.getWriter();

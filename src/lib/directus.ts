@@ -1,7 +1,7 @@
 const rawDirectusUrl =
 	import.meta.env.PUBLIC_DIRECTUS_URL ||
 	import.meta.env.DIRECTUS_URL ||
-	'https://cornolere.asoloweb.it';
+	'https://admin.cornolere.it';
 
 export const DIRECTUS_URL = rawDirectusUrl.replace(/\/+$/, '');
 const DIRECTUS_TOKEN = import.meta.env.DIRECTUS_TOKEN || import.meta.env.PUBLIC_DIRECTUS_TOKEN || '';

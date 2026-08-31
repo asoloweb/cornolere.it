@@ -6,9 +6,9 @@ import node from '@astrojs/node';
 const directusUrl =
 	process.env.PUBLIC_DIRECTUS_URL ||
 	process.env.DIRECTUS_URL ||
-	'https://cornolere.asoloweb.it';
+	'https://admin.cornolere.it';
 let directusProtocol = 'https';
-let directusHostname = 'cornolere.asoloweb.it';
+let directusHostname = 'admin.cornolere.it';
 
 try {
 	const parsed = new URL(directusUrl);

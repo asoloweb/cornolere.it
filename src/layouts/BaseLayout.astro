@@ -59,7 +59,7 @@ function resolveImageSrc(value: string) {
 	return `${DIRECTUS_URL}/assets/${value}`;
 }
 
-let logoLightSrc = import.meta.env.PUBLIC_LOGO_LIGHT || '/favicon.svg';
+let logoLightSrc = import.meta.env.PUBLIC_LOGO_LIGHT || '/favicon.png';
 
 try {
 	const optionsUrl = directusItemsUrl('options');
@@ -97,7 +97,8 @@ function getFaviconMimeType(src: string) {
 	return undefined;
 }
 
-const faviconMimeType = getFaviconMimeType(logoLightSrc);
+const faviconSrc = '/favicon.png';
+const faviconMimeType = getFaviconMimeType(faviconSrc);
 
 const organizationId = `${siteUrl}/#organization`;
 const lodgingBusinessId = `${siteUrl}/#bedandbreakfast`;
@@ -144,9 +145,9 @@ const organizationJsonLd = JSON.stringify(
 <html lang={htmlLang}>
 	<head>
 		<meta charset="utf-8" />
-		<link rel="icon" type={faviconMimeType} href={logoLightSrc} />
-		<link rel="shortcut icon" type={faviconMimeType} href={logoLightSrc} />
-		<link rel="apple-touch-icon" href={logoLightSrc} />
+		<link rel="icon" type={faviconMimeType} href={faviconSrc} />
+		<link rel="shortcut icon" type={faviconMimeType} href={faviconSrc} />
+		<link rel="apple-touch-icon" href={faviconSrc} />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="theme-color" content="#0f3d2e" />
 		<meta name="generator" content={Astro.generator} />

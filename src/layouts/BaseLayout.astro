@@ -100,7 +100,7 @@ const faviconSrc = '/favicon.png';
 const faviconMimeType = getFaviconMimeType(faviconSrc);
 
 const organizationId = `${siteUrl}/#organization`;
-const lodgingBusinessId = `${siteUrl}/#bedandbreakfast`;
+const lodgingBusinessId = `${siteUrl}/#lodging`;
 const organizationJsonLd = JSON.stringify(
 	{
 		'@context': 'https://schema.org',
@@ -115,7 +115,7 @@ const organizationJsonLd = JSON.stringify(
 				sameAs: organizationSameAs,
 			},
 			{
-				'@type': 'BedAndBreakfast',
+				'@type': 'LodgingBusiness',
 				'@id': lodgingBusinessId,
 				name: organizationName,
 				url: siteUrl,

@@ -2,7 +2,6 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
 const organizationEmail = import.meta.env.PUBLIC_ORGANIZATION_EMAIL || 'info@cornolere.it';
-const organizationPhone = import.meta.env.PUBLIC_ORGANIZATION_PHONE || '+39 0423 563133';
 const organizationStreet = import.meta.env.PUBLIC_ORGANIZATION_STREET || 'Via Collalto, 42';
 const organizationCity = import.meta.env.PUBLIC_ORGANIZATION_CITY || '31030 Castelcucco TV';
 ---
@@ -27,10 +26,10 @@ const organizationCity = import.meta.env.PUBLIC_ORGANIZATION_CITY || '31030 Cast
 
 				<ul class="contact_page_info_list">
 					<li>
-						<span class="contact_page_info_icon"><i class="fa-solid fa-phone"></i></span>
+						<span class="contact_page_info_icon"><i class="fa-brands fa-whatsapp"></i></span>
 						<div>
-							<strong>Phone</strong>
-							<a href={`tel:${organizationPhone.replace(/\s/g, '')}`}>{organizationPhone}</a>
+							<strong>WhatsApp</strong>
+							<a href="https://wa.me/393398038658" target="_blank" rel="noopener noreferrer">Message us on WhatsApp</a>
 						</div>
 					</li>
 					<li>

@@ -50,7 +50,6 @@ interface Props {
 const { lang = 'it', langSwitchHref } = Astro.props;
 const uiStrings = ui(lang);
 const switchHref = langSwitchHref || (lang === 'en' ? '/' : '/en/');
-
 let logoDarkSrc =
 	import.meta.env.PUBLIC_LOGO_DARK || import.meta.env.PUBLIC_LOGO_LIGHT || '/favicon.svg';
 const currentPath = Astro.url?.pathname ?? '/';
@@ -178,15 +177,15 @@ function getMenuItemIdClass(item: MenuItem, index: number) {
 }
 ---
 <div class="TopBar">
-	<a target="_blank" href="https://maps.app.goo.gl/Eg3tNKrkvrEuo1jz7">Bed and Breakfast Cornolere - Castelcucco</a>
-	<a href="tel:+390423563133">0423 563133</a>
+	<a target="_blank" href="https://maps.app.goo.gl/Eg3tNKrkvrEuo1jz7">Ca'Cornolere - Castelcucco</a>
+	<a href="https://wa.me/393398038658" target="_blank" rel="noopener noreferrer">Scrivici su WhatsApp</a>
 	<a href="mailto:info@cornolere.it">info@cornolere.it</a>
 </div>
 <header class="site-header">
 	<nav aria-label={uiStrings.menuAria}>
 		<div>
-			<a href="/" aria-label="Vai alla home page del Bed and Breakfast Cornolere">
-				<img class="MenuLogo" src={logoDarkSrc} alt="Bed and Breakfast Cornolere" />
+			<a href="/" aria-label="Vai alla home page di Ca'Cornolere">
+				<img class="MenuLogo" src={logoDarkSrc} alt="Ca'Cornolere" />
 			</a>
 		</div>
 		<div class="MenuItemsContainer">

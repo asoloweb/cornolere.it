@@ -27,11 +27,9 @@ const alternateLangUrl = new URL(switchHref, `${siteUrl}/`).toString();
 const itLangUrl = lang === 'it' ? canonicalUrl : alternateLangUrl;
 const enLangUrl = lang === 'en' ? canonicalUrl : alternateLangUrl;
 const organizationName =
-	import.meta.env.PUBLIC_ORGANIZATION_NAME || 'Cornolere';
+	import.meta.env.PUBLIC_ORGANIZATION_NAME || "Ca'Cornolere";
 const organizationEmail =
 	import.meta.env.PUBLIC_ORGANIZATION_EMAIL || 'info@cornolere.it';
-const organizationPhone =
-	import.meta.env.PUBLIC_ORGANIZATION_PHONE || '+39 0423 563133';
 const organizationStreetAddress =
 	import.meta.env.PUBLIC_ORGANIZATION_STREET || 'Via Collalto, 42';
 const organizationLocality =
@@ -113,7 +111,6 @@ const organizationJsonLd = JSON.stringify(
 				url: siteUrl,
 				logo: absoluteLogoUrl,
 				email: organizationEmail,
-				telephone: organizationPhone,
 				sameAs: organizationSameAs,
 			},
 			{
@@ -122,7 +119,6 @@ const organizationJsonLd = JSON.stringify(
 				name: organizationName,
 				url: siteUrl,
 				image: absoluteLogoUrl,
-				telephone: organizationPhone,
 				email: organizationEmail,
 				address: {
 					'@type': 'PostalAddress',

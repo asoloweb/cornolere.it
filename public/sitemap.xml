@@ -1,157 +1,125 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/css" href="https://www.xml-sitemaps.com/css/sitemap.css"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
   <url>
-    <loc>https://cornolere.it/</loc>
-    <lastmod>2026-09-30</lastmod>
-    <xhtml:link rel="alternate" hreflang="it" href="https://cornolere.it/" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://cornolere.it/en/" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://cornolere.it/" />
+       <loc>https://cornolere.it/</loc>
+       <lastmod>2026-09-30T20:24:13+00:00</lastmod>
+       <priority>1.0000</priority>
   </url>
   <url>
-    <loc>https://cornolere.it/en/</loc>
-    <lastmod>2026-09-30</lastmod>
-    <xhtml:link rel="alternate" hreflang="it" href="https://cornolere.it/" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://cornolere.it/en/" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://cornolere.it/" />
+       <loc>https://cornolere.it/en/</loc>
+       <lastmod>2026-09-30T20:24:13+00:00</lastmod>
+       <priority>0.8000</priority>
   </url>
   <url>
-    <loc>https://cornolere.it/camere</loc>
-    <lastmod>2026-09-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="it" href="https://cornolere.it/camere" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://cornolere.it/en/rooms" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://cornolere.it/camere" />
+       <loc>https://cornolere.it/la-struttura</loc>
+       <lastmod>2026-09-30T20:24:13+00:00</lastmod>
+       <priority>0.8000</priority>
   </url>
   <url>
-    <loc>https://cornolere.it/en/rooms</loc>
-    <lastmod>2026-09-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="it" href="https://cornolere.it/camere" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://cornolere.it/en/rooms" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://cornolere.it/camere" />
+       <loc>https://cornolere.it/chi-siamo</loc>
+       <lastmod>2026-09-30T20:24:13+00:00</lastmod>
+       <priority>0.8000</priority>
   </url>
   <url>
-    <loc>https://cornolere.it/camera-matrimoniale</loc>
-    <lastmod>2026-09-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="it" href="https://cornolere.it/camera-matrimoniale" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://cornolere.it/en/double-room" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://cornolere.it/camera-matrimoniale" />
+       <loc>https://cornolere.it/camere</loc>
+       <lastmod>2026-09-30T20:24:13+00:00</lastmod>
+       <priority>0.8000</priority>
   </url>
   <url>
-    <loc>https://cornolere.it/en/double-room</loc>
-    <lastmod>2026-09-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="it" href="https://cornolere.it/camera-matrimoniale" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://cornolere.it/en/double-room" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://cornolere.it/camera-matrimoniale" />
+       <loc>https://cornolere.it/territorio-e-attivita</loc>
+       <lastmod>2026-09-30T20:24:13+00:00</lastmod>
+       <priority>0.8000</priority>
   </url>
   <url>
-    <loc>https://cornolere.it/camera-doppia-1</loc>
-    <lastmod>2026-09-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="it" href="https://cornolere.it/camera-doppia-1" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://cornolere.it/en/double-or-single-room-1" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://cornolere.it/camera-doppia-1" />
+       <loc>https://cornolere.it/richiesta-informazioni</loc>
+       <lastmod>2026-09-30T20:24:13+00:00</lastmod>
+       <priority>0.8000</priority>
   </url>
   <url>
-    <loc>https://cornolere.it/en/double-or-single-room-1</loc>
-    <lastmod>2026-09-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="it" href="https://cornolere.it/camera-doppia-1" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://cornolere.it/en/double-or-single-room-1" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://cornolere.it/camera-doppia-1" />
+       <loc>https://cornolere.it/percorsi-bici-elettrica-asolo</loc>
+       <lastmod>2026-09-30T20:24:13+00:00</lastmod>
+       <priority>0.8000</priority>
   </url>
   <url>
-    <loc>https://cornolere.it/camera-singola</loc>
-    <lastmod>2026-09-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="it" href="https://cornolere.it/camera-singola" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://cornolere.it/en/single-room" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://cornolere.it/camera-singola" />
+       <loc>https://cornolere.it/condizioni-del-servizio</loc>
+       <lastmod>2026-09-30T20:24:13+00:00</lastmod>
+       <priority>0.8000</priority>
   </url>
   <url>
-    <loc>https://cornolere.it/en/single-room</loc>
-    <lastmod>2026-09-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="it" href="https://cornolere.it/camera-singola" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://cornolere.it/en/single-room" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://cornolere.it/camera-singola" />
+       <loc>https://cornolere.it/en/the-structure</loc>
+       <lastmod>2026-09-30T20:24:13+00:00</lastmod>
+       <priority>0.6400</priority>
   </url>
   <url>
-    <loc>https://cornolere.it/la-struttura</loc>
-    <lastmod>2026-09-30</lastmod>
-    <xhtml:link rel="alternate" hreflang="it" href="https://cornolere.it/la-struttura" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://cornolere.it/en/the-structure" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://cornolere.it/la-struttura" />
+       <loc>https://cornolere.it/en/about-us</loc>
+       <lastmod>2026-09-30T20:24:13+00:00</lastmod>
+       <priority>0.6400</priority>
   </url>
   <url>
-    <loc>https://cornolere.it/en/the-structure</loc>
-    <lastmod>2026-09-30</lastmod>
-    <xhtml:link rel="alternate" hreflang="it" href="https://cornolere.it/la-struttura" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://cornolere.it/en/the-structure" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://cornolere.it/la-struttura" />
+       <loc>https://cornolere.it/en/rooms</loc>
+       <lastmod>2026-09-30T20:24:13+00:00</lastmod>
+       <priority>0.6400</priority>
   </url>
   <url>
-    <loc>https://cornolere.it/chi-siamo</loc>
-    <lastmod>2026-09-30</lastmod>
-    <xhtml:link rel="alternate" hreflang="it" href="https://cornolere.it/chi-siamo" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://cornolere.it/en/about-us" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://cornolere.it/chi-siamo" />
+       <loc>https://cornolere.it/en/territory-and-activities</loc>
+       <lastmod>2026-09-30T20:24:13+00:00</lastmod>
+       <priority>0.6400</priority>
   </url>
   <url>
-    <loc>https://cornolere.it/en/about-us</loc>
-    <lastmod>2026-09-30</lastmod>
-    <xhtml:link rel="alternate" hreflang="it" href="https://cornolere.it/chi-siamo" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://cornolere.it/en/about-us" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://cornolere.it/chi-siamo" />
+       <loc>https://cornolere.it/en/contact</loc>
+       <lastmod>2026-09-30T20:24:13+00:00</lastmod>
+       <priority>0.6400</priority>
   </url>
   <url>
-    <loc>https://cornolere.it/territorio-e-attivita</loc>
-    <lastmod>2026-09-30</lastmod>
-    <xhtml:link rel="alternate" hreflang="it" href="https://cornolere.it/territorio-e-attivita" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://cornolere.it/en/territory-and-activities" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://cornolere.it/territorio-e-attivita" />
+       <loc>https://cornolere.it/en/e-bike-tours-asolo</loc>
+       <lastmod>2026-09-30T20:24:13+00:00</lastmod>
+       <priority>0.6400</priority>
   </url>
   <url>
-    <loc>https://cornolere.it/en/territory-and-activities</loc>
-    <lastmod>2026-09-30</lastmod>
-    <xhtml:link rel="alternate" hreflang="it" href="https://cornolere.it/territorio-e-attivita" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://cornolere.it/en/territory-and-activities" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://cornolere.it/territorio-e-attivita" />
+       <loc>https://cornolere.it/en/terms-of-service</loc>
+       <lastmod>2026-09-30T20:24:13+00:00</lastmod>
+       <priority>0.6400</priority>
   </url>
   <url>
-    <loc>https://cornolere.it/percorsi-bici-elettrica-asolo</loc>
-    <lastmod>2026-09-30</lastmod>
-    <xhtml:link rel="alternate" hreflang="it" href="https://cornolere.it/percorsi-bici-elettrica-asolo" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://cornolere.it/en/e-bike-tours-asolo" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://cornolere.it/percorsi-bici-elettrica-asolo" />
+       <loc>https://cornolere.it/camera-matrimoniale</loc>
+       <lastmod>2026-09-30T20:24:13+00:00</lastmod>
+       <priority>0.6400</priority>
   </url>
   <url>
-    <loc>https://cornolere.it/en/e-bike-tours-asolo</loc>
-    <lastmod>2026-09-30</lastmod>
-    <xhtml:link rel="alternate" hreflang="it" href="https://cornolere.it/percorsi-bici-elettrica-asolo" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://cornolere.it/en/e-bike-tours-asolo" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://cornolere.it/percorsi-bici-elettrica-asolo" />
+       <loc>https://cornolere.it/camera-doppia-1</loc>
+       <lastmod>2026-09-30T20:24:13+00:00</lastmod>
+       <priority>0.6400</priority>
   </url>
   <url>
-    <loc>https://cornolere.it/richiesta-informazioni</loc>
-    <lastmod>2026-09-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="it" href="https://cornolere.it/richiesta-informazioni" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://cornolere.it/en/contact" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://cornolere.it/richiesta-informazioni" />
+       <loc>https://cornolere.it/camera-singola</loc>
+       <lastmod>2026-09-30T20:24:13+00:00</lastmod>
+       <priority>0.6400</priority>
   </url>
   <url>
-    <loc>https://cornolere.it/en/contact</loc>
-    <lastmod>2026-09-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="it" href="https://cornolere.it/richiesta-informazioni" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://cornolere.it/en/contact" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://cornolere.it/richiesta-informazioni" />
+       <loc>https://cornolere.it/privacy-policy</loc>
+       <lastmod>2026-09-30T20:24:13+00:00</lastmod>
+       <priority>0.6400</priority>
   </url>
   <url>
-    <loc>https://cornolere.it/condizioni-del-servizio</loc>
-    <lastmod>2026-09-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="it" href="https://cornolere.it/condizioni-del-servizio" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://cornolere.it/en/terms-of-service" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://cornolere.it/condizioni-del-servizio" />
+       <loc>https://cornolere.it/en/double-room</loc>
+       <lastmod>2026-09-30T20:24:13+00:00</lastmod>
+       <priority>0.5120</priority>
   </url>
   <url>
-    <loc>https://cornolere.it/en/terms-of-service</loc>
-    <lastmod>2026-09-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="it" href="https://cornolere.it/condizioni-del-servizio" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://cornolere.it/en/terms-of-service" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://cornolere.it/condizioni-del-servizio" />
+       <loc>https://cornolere.it/en/double-or-single-room-1</loc>
+       <lastmod>2026-09-30T20:24:13+00:00</lastmod>
+       <priority>0.5120</priority>
+  </url>
+  <url>
+       <loc>https://cornolere.it/en/single-room</loc>
+       <lastmod>2026-09-30T20:24:13+00:00</lastmod>
+       <priority>0.5120</priority>
+  </url>
+  <url>
+       <loc>https://cornolere.it/en/privacy-policy</loc>
+       <lastmod>2026-09-30T20:24:13+00:00</lastmod>
+       <priority>0.5120</priority>
   </url>
 </urlset>

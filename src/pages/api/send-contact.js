@@ -38,7 +38,7 @@ async function sendSmtp(env, { nome, telefono, email, indirizzo, dataInizio, dat
 	const smtpUser = env.SMTP_USER;
 	const smtpPass = env.SMTP_PASSWORD;
 	const smtpFrom = env.SMTP_FROM || smtpUser;
-	const smtpTo = env.SMTP_TO || 'info@cornolere.it';
+	const smtpTo = env.SMTP_TO || 'alessiaforner76@gmail.com';
 
 	const secure = smtpPort === 465;
 	const socket = await openSocket(smtpHost, smtpPort, secure);
@@ -102,7 +102,7 @@ async function sendSmtp(env, { nome, telefono, email, indirizzo, dataInizio, dat
 		`From: ${smtpFrom}`,
 		`To: ${smtpTo}`,
 		`Reply-To: ${email}`,
-		`Subject: =?utf-8?B?${btoa('Nuova richiesta di contatto - Cornolere')}?=`,
+		`Subject: =?utf-8?B?${btoa('Richiesta informazioni Cornolere')}?=`,
 		`MIME-Version: 1.0`,
 		`Content-Type: multipart/alternative; boundary="${boundary}"`,
 		'',

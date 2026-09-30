@@ -32,6 +32,7 @@ const rawPage = routeSlug ? await fetchPageByEnSlug(routeSlug) : null;
 const page = rawPage ? applyTranslation(rawPage, 'en') : null;
 const itSlug = rawPage?.slug;
 const langSwitchHref = !itSlug || itSlug === 'home' ? '/' : `/${itSlug}`;
+const additionalJsonLd = Astro.props?.additionalJsonLd as string | undefined;
 ---
 
 <BaseLayout
@@ -40,6 +41,7 @@ const langSwitchHref = !itSlug || itSlug === 'home' ? '/' : `/${itSlug}`;
 	seoDescription={page?.seo_desc}
 	lang="en"
 	langSwitchHref={langSwitchHref}
+	additionalJsonLd={additionalJsonLd}
 >
 	<PageContent page={page} lang="en" />
 </BaseLayout>

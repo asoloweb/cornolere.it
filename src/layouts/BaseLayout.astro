@@ -11,9 +11,10 @@ export interface Props {
 	seoDescription?: string;
 	lang?: SiteLang;
 	langSwitchHref?: string;
+	additionalJsonLd?: string;
 }
 
-const { title, seoTitle, seoDescription, lang = 'it', langSwitchHref } = Astro.props;
+const { title, seoTitle, seoDescription, lang = 'it', langSwitchHref, additionalJsonLd } = Astro.props;
 const resolvedTitle = seoTitle || title;
 const htmlLang = lang === 'en' ? 'en' : 'it';
 const ogLocale = lang === 'en' ? 'en_US' : 'it_IT';
@@ -37,6 +38,8 @@ const organizationLocality =
 	import.meta.env.PUBLIC_ORGANIZATION_CITY || '31030 Castelcucco TV';
 const organizationCountry =
 	import.meta.env.PUBLIC_ORGANIZATION_COUNTRY || 'IT';
+const organizationTelephone =
+	import.meta.env.PUBLIC_ORGANIZATION_TELEPHONE || '+393398038658';
 const organizationAreaServed =
 	import.meta.env.PUBLIC_ORGANIZATION_AREA_SERVED || 'IT';
 const organizationSameAs = (import.meta.env.PUBLIC_ORGANIZATION_SAME_AS || '')
@@ -100,7 +103,7 @@ const faviconSrc = '/favicon.png';
 const faviconMimeType = getFaviconMimeType(faviconSrc);
 
 const organizationId = `${siteUrl}/#organization`;
-const lodgingBusinessId = `${siteUrl}/#lodging`;
+const lodgingBusinessId = `${siteUrl}/#struttura`;
 const organizationJsonLd = JSON.stringify(
 	{
 		'@context': 'https://schema.org',
@@ -115,11 +118,13 @@ const organizationJsonLd = JSON.stringify(
 				sameAs: organizationSameAs,
 			},
 			{
-				'@type': 'LodgingBusiness',
+				'@type': 'BedAndBreakfast',
 				'@id': lodgingBusinessId,
 				name: organizationName,
 				url: siteUrl,
-				image: absoluteLogoUrl,
+				telephone: organizationTelephone,
+				priceRange: '€€',
+				image: [socialImageUrl, absoluteLogoUrl],
 				email: organizationEmail,
 				address: {
 					'@type': 'PostalAddress',
@@ -127,6 +132,25 @@ const organizationJsonLd = JSON.stringify(
 					addressLocality: organizationLocality,
 					addressCountry: organizationCountry,
 				},
+				geo: {
+					'@type': 'GeoCoordinates',
+					latitude: 45.8360365,
+					longitude: 11.9027936,
+				},
+				checkinTime: '15:00',
+				checkoutTime: '10:00',
+				amenityFeature: [
+					{
+						'@type': 'LocationFeatureSpecification',
+						name: 'Wi-Fi gratuito',
+						value: true,
+					},
+					{
+						'@type': 'LocationFeatureSpecification',
+						name: 'Parcheggio',
+						value: true,
+					},
+				],
 				areaServed: organizationAreaServed,
 				provider: {
 					'@id': organizationId,
@@ -171,6 +195,7 @@ const organizationJsonLd = JSON.stringify(
 		<meta name="twitter:image" content={socialImageUrl} />
 		<meta name="twitter:image:alt" content={organizationName} />
 		<script type="application/ld+json" set:html={organizationJsonLd}></script>
+		{additionalJsonLd && <script type="application/ld+json" set:html={additionalJsonLd}></script>}
 		<link rel="stylesheet" href="/vendor/aos.css" />
 		<link rel="stylesheet" href="/vendor/swiper-bundle.min.css" />
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />

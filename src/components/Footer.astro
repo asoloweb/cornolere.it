@@ -161,6 +161,13 @@ function resolveMenuEntry(item: MenuItem, index: number) {
 			<a href="/" aria-label="Vai alla home page di Ca'Cornolere">
 				<img class="MenuLogo" src={logoLightSrc} alt="Ca'Cornolere" />
 			</a>
+			<div class="footer_trustindex_badge">
+				<script
+					defer
+					async
+					src='https://cdn.trustindex.io/loader.js?3125d42821f6648d19464f088f6'
+				></script>
+			</div>
 		</div>
 		<div class="FooterItemsContainer">
 			{footerMenus.map((footerMenu) => (
@@ -179,3 +186,10 @@ function resolveMenuEntry(item: MenuItem, index: number) {
 	</div>
 	<div class="footer_data" set:html={footerText} />
 </footer>
+
+<style>
+	.footer_trustindex_badge {
+		margin-top: 18px;
+		display: inline-flex;
+	}
+</style>

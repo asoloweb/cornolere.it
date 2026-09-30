@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets';
 import { DIRECTUS_URL, directusItemsUrl } from '../lib/directus';
 import { applyTranslation, ui, type SiteLang } from '../lib/i18n';
 
@@ -159,7 +160,17 @@ function resolveMenuEntry(item: MenuItem, index: number) {
 	<div class="site_footer_inner">
 		<div>
 			<a href="/" aria-label="Vai alla home page di Ca'Cornolere">
-				<img class="MenuLogo" src={logoLightSrc} alt="Ca'Cornolere" />
+				<Image
+					class="MenuLogo"
+					src={logoLightSrc}
+					alt="Ca'Cornolere"
+					width={600}
+					height={228}
+					widths={[316, 600]}
+					sizes="(max-width: 1100px) 158px, 316px"
+					format="webp"
+					loading="lazy"
+				/>
 			</a>
 		</div>
 		<div class="FooterItemsContainer">

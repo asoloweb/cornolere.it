@@ -1,5 +1,6 @@
 ---
-import { directusAssetUrl } from '../lib/directus';
+import { Image } from 'astro:assets';
+import { DIRECTUS_URL } from '../lib/directus';
 
 interface PageRef {
 	id?: number;
@@ -27,13 +28,11 @@ interface Props {
 const { titolo = '', card = [] } = Astro.props;
 
 function resolveImageSrc(value: string | undefined) {
-	return directusAssetUrl(value, {
-		width: 720,
-		height: 540,
-		quality: 82,
-		format: 'webp',
-		fit: 'cover',
-	});
+	if (!value) return '';
+	if (value.startsWith('http://') || value.startsWith('https://') || value.startsWith('/')) {
+		return value;
+	}
+	return `${DIRECTUS_URL}/assets/${value}`;
 }
 
 function normalizeCards(input: CardRelation[] | SingleCard[]) {
@@ -111,7 +110,16 @@ const isRoomsBlock = normalizedTitle.includes('camere') || normalizedTitle.inclu
 								</div>
 							) : imageSrc && (
 								<div class="cards_card_media">
-									<img src={imageSrc} alt={single.titolo_card || ''} loading="lazy" />
+									<Image
+										src={imageSrc}
+										alt={single.titolo_card || ''}
+										width={720}
+										height={540}
+										widths={[320, 480, 720]}
+										sizes="(max-width: 767px) calc(100vw - 68px), (max-width: 1100px) calc(50vw - 51px), 380px"
+										format="webp"
+										loading="lazy"
+									/>
 								</div>
 							)}
 							{single.titolo_card && <h3 class="cards_card_title" set:html={single.titolo_card} />}

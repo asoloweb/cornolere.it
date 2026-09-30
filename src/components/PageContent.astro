@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets';
 import HeroBlock from '../components/hero_block.astro';
 import TitleBlock from '../components/title_block.astro';
 import SliderBlock from '../components/slider_block.astro';
@@ -287,10 +288,20 @@ function getBlockDomId(block: EditorEntry, collection: string, index: number) {
 {page ? (
 	<>
 		{showPageHeader ? (
-			<div
-				class="page_header"
-				style={pageHeaderImage ? `background-image: url('${pageHeaderImage}')` : undefined}
-			>
+			<div class="page_header">
+				{pageHeaderImage && (
+					<Image
+						class="page_header_image"
+						src={pageHeaderImage}
+						alt=""
+						width={1600}
+						height={500}
+						widths={[768, 1200, 1600]}
+						sizes="95vw"
+						format="webp"
+						loading="eager"
+					/>
+				)}
 				<div class="page_header_inner">
 					{pageTitle && <h1 data-aos="fade-up" data-aos-duration="1500">{pageTitle}</h1>}
 					{pageDescription && <p data-aos="fade-up" data-aos-duration="1800">{pageDescription}</p>}

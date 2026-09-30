@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets';
 import { directusAssetUrl } from '../lib/directus';
 
 interface SlideItem {
@@ -44,13 +45,7 @@ const hasMultipleSlides = resolvedSlides.length > 1;
 const sliderId = `slider-${Math.random().toString(36).slice(2)}`;
 
 function resolveImageSrc(value: string | undefined) {
-	return directusAssetUrl(value, {
-		width: 1800,
-		height: variant === 'gallery' ? 1200 : 1000,
-		quality: 85,
-		format: 'webp',
-		fit: 'cover',
-	});
+	return directusAssetUrl(value);
 }
 ---
 
@@ -61,13 +56,34 @@ function resolveImageSrc(value: string | undefined) {
 >
 	<div class="swiper-wrapper">
 		{resolvedSlides.map((slide, index) => (
-			<div
-				class="swiper-slide single_slide"
-				style={variant === 'hero' && slide.immagine ? `background-image: url('${resolveImageSrc(slide.immagine)}')` : ''}
-			>
+			<div class="swiper-slide single_slide">
+				{variant === 'hero' && slide.immagine && (
+					<Image
+						class="slider_background"
+						src={resolveImageSrc(slide.immagine)}
+						alt=""
+						width={1600}
+						height={900}
+						widths={[768, 1280, 1600]}
+						sizes="(max-width: 767px) 100vw, 95vw"
+						format="webp"
+						loading={index === 0 ? 'eager' : 'lazy'}
+					/>
+				)}
 				{variant === 'gallery' ? (
 					<figure class="gallery_figure">
-						{slide.immagine && <img src={resolveImageSrc(slide.immagine)} alt={slide.titolo || `Foto ${index + 1} della camera`} loading={index === 0 ? 'eager' : 'lazy'} />}
+						{slide.immagine && (
+							<Image
+								src={resolveImageSrc(slide.immagine)}
+								alt={slide.titolo || `Foto ${index + 1} della camera`}
+								width={1200}
+								height={800}
+								widths={[480, 768, 1200]}
+								sizes="(max-width: 767px) 100vw, 1200px"
+								format="webp"
+								loading={index === 0 ? 'eager' : 'lazy'}
+							/>
+						)}
 						{slide.sottotitolo && <figcaption set:html={slide.sottotitolo} />}
 					</figure>
 				) : (
@@ -155,7 +171,16 @@ function resolveImageSrc(value: string | undefined) {
 			font-weight: 400;
 		}
 
-		.slider_block .single_slide > * {
+		.slider_background {
+			position: absolute;
+			inset: 0;
+			z-index: 0;
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+		}
+
+		.slider_block .single_slide > :not(.slider_background) {
 		position: relative;
 		z-index: 1;
 		}

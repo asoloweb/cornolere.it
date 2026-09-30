@@ -49,8 +49,11 @@ function resolveImageSrc(value: string) {
 				data-aos-duration="2000"
 				src={resolveImageSrc(immagine)}
 				alt={sottotitolo || titolo}
-				width={1200}
-				height={800}
+				width={840}
+				height={560}
+				widths={[360, 560, 840]}
+				sizes="(max-width: 767px) calc(100vw - 68px), 560px"
+				format="webp"
 			/>
 		</div>
 	)}

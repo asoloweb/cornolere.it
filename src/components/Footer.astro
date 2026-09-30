@@ -161,13 +161,6 @@ function resolveMenuEntry(item: MenuItem, index: number) {
 			<a href="/" aria-label="Vai alla home page di Ca'Cornolere">
 				<img class="MenuLogo" src={logoLightSrc} alt="Ca'Cornolere" />
 			</a>
-			<div class="footer_trustindex_badge">
-				<script
-					defer
-					async
-					src='https://cdn.trustindex.io/loader.js?3125d42821f6648d19464f088f6'
-				></script>
-			</div>
 		</div>
 		<div class="FooterItemsContainer">
 			{footerMenus.map((footerMenu) => (
@@ -184,12 +177,20 @@ function resolveMenuEntry(item: MenuItem, index: number) {
 			))}
 		</div>
 	</div>
+	<div class="footer_data footer_contacts">
+		<p>
+			<strong>Ca'Cornolere</strong> - <strong>Telefono</strong>: Cell. Alessia <a href="tel:+393398038658">339 8038658</a>, Cell. Adriana <a href="tel:+393384394501">338 4394501</a> - <strong>Email</strong>: <a href="mailto:info@cornolere.it">info@cornolere.it</a> - <strong>Indirizzo</strong>: Via Collalto, 42, 31030 Castelcucco TV - <a href="https://www.iubenda.com/privacy-policy/92590719" class="iubenda-white iubenda-noiframe iubenda-embed" title="Privacy Policy">Privacy Policy</a> - <a href="https://www.iubenda.com/privacy-policy/92590719/cookie-policy" class="iubenda-white iubenda-noiframe iubenda-embed" title="Cookie Policy">Cookie Policy</a>
+		</p>
+	</div>
 	<div class="footer_data" set:html={footerText} />
 </footer>
 
 <style>
-	.footer_trustindex_badge {
-		margin-top: 18px;
-		display: inline-flex;
+	.footer_contacts {
+		margin-bottom: -16px;
+	}
+
+	.footer_contacts p {
+		margin: 0;
 	}
 </style>

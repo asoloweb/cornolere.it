@@ -48,10 +48,7 @@ const organizationSameAs = (import.meta.env.PUBLIC_ORGANIZATION_SAME_AS || '')
 	.filter(Boolean);
 const umamiScriptSrc = import.meta.env.PUBLIC_UMAMI_SCRIPT_SRC || 'https://umami.asoloweb.it/script.js';
 const umamiWebsiteId =
-	import.meta.env.PUBLIC_UMAMI_WEBSITE_ID || '517b6a8c-733f-4d9f-a924-17c001c2806d';
-const cookieFirstSiteId =
-	import.meta.env.PUBLIC_COOKIEFIRST_SITE_ID ||
-	'cornolere.it-ab8997c4-07b9-4efd-ae2b-8e8a064a7ed1';
+	import.meta.env.PUBLIC_UMAMI_WEBSITE_ID || 'e5ebd6d3-935e-491b-86a8-8fafb35ce75b';
 
 function resolveImageSrc(value: string) {
 	if (!value) return '';
@@ -165,6 +162,7 @@ const organizationJsonLd = JSON.stringify(
 
 <html lang={htmlLang}>
 	<head>
+		<script type="text/javascript" src="https://embeds.iubenda.com/widgets/6726a87f-9201-47ba-acdd-30de462d274f.js"></script>
 		<meta charset="utf-8" />
 		<link rel="icon" type={faviconMimeType} href={faviconSrc} />
 		<link rel="shortcut icon" type={faviconMimeType} href={faviconSrc} />
@@ -202,7 +200,6 @@ const organizationJsonLd = JSON.stringify(
 		{shouldLoadThirdPartyScripts && (
 			<>
 				<script defer src={umamiScriptSrc} data-website-id={umamiWebsiteId}></script>
-				<script src={`https://consent.cookiefirst.com/sites/${cookieFirstSiteId}/consent.js`}></script>
 			</>
 		)}
 		<!-- Google tag (gtag.js) --> <script async src="https://www.googletagmanager.com/gtag/js?id=AW-10932709528"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'AW-10932709528'); </script>

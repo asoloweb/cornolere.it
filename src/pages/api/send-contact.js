@@ -62,103 +62,144 @@ async function sendSmtp(env, { nome, telefono, email, indirizzo, dataInizio, dat
 	const smtpTo = env.SMTP_TO || 'alessiaforner76@gmail.com';
 
 	const secure = smtpPort === 465;
-	const connection = await openSocket(smtpHost, smtpPort, secure);
-	let socket = connection.stream;
-	let reader = socket.readable.getReader();
-	let writer = socket.writable.getWriter();
+	let step = 'apertura socket';
 
-	let buf = '';
-	const waitFor = async (code) => {
-		while (true) {
-			const { done, value } = await reader.read();
-			if (done) throw new Error('Connessione chiusa');
-			buf += new TextDecoder().decode(value);
-			const lines = buf.split('\r\n');
-			if (lines.length > 1) {
-				const last = lines[lines.length - 2];
-				if (last.startsWith(String(code))) {
-					buf = lines[lines.length - 1];
-					return last;
-				}
-				if (!last.startsWith(String(code))) {
-					throw new Error(`SMTP expected ${code}, got: ${last}`);
-				}
-			}
-		}
+	const fail = (error) => {
+		const message = error?.message || String(error);
+		if (message.startsWith('[')) return error;
+		const wrapped = new Error(`[${step}] ${message}`);
+		wrapped.cause = error;
+		return wrapped;
 	};
-	const send = (cmd) => writer.write(new TextEncoder().encode(cmd + '\r\n'));
-	const replaceSocket = (nextSocket) => {
-		reader.releaseLock();
-		writer.releaseLock();
-		socket = nextSocket;
+
+	let connection;
+	let socket;
+	let reader;
+	let writer;
+	let buf = '';
+
+	try {
+		connection = await openSocket(smtpHost, smtpPort, secure);
+		if (typeof connection.stream.opened?.then === 'function') {
+			// Superficce subito errori di connessione/TLS (es. certificato scaduto).
+			await connection.stream.opened;
+		}
+		socket = connection.stream;
 		reader = socket.readable.getReader();
 		writer = socket.writable.getWriter();
-	};
 
-	await waitFor(220);
-	await send(`EHLO cornolere.it`);
-	await waitFor(250);
+		const waitFor = async (code) => {
+			while (true) {
+				const { done, value } = await reader.read();
+				if (done) throw new Error(`connessione chiusa durante attesa ${code}`);
+				buf += new TextDecoder().decode(value);
+				const lines = buf.split('\r\n');
+				if (lines.length > 1) {
+					const last = lines[lines.length - 2];
+					// Le righe intermedie EHLO sono "250-xxx": la risposta finale e' "250 xxx".
+					if (last.startsWith(`${code} `) || last === String(code)) {
+						buf = lines[lines.length - 1];
+						return last;
+					}
+					if (!last.startsWith(`${code}-`)) {
+						throw new Error(`atteso ${code}, ricevuto: ${last}`);
+					}
+				}
+			}
+		};
+		const send = (cmd) => writer.write(new TextEncoder().encode(cmd + '\r\n'));
+		// startTls() richiede che reader/writer siano rilasciati prima dell'upgrade.
+		const upgradeTls = async () => {
+			reader.releaseLock();
+			writer.releaseLock();
+			socket = await connection.startTls();
+			reader = socket.readable.getReader();
+			writer = socket.writable.getWriter();
+			buf = '';
+		};
 
-	if (smtpPort === 587) {
-		if (!connection.startTls) throw new Error('STARTTLS non disponibile');
-		await send('STARTTLS');
+		step = 'lettura banner';
 		await waitFor(220);
-		replaceSocket(await connection.startTls());
+
+		step = 'EHLO';
 		await send(`EHLO cornolere.it`);
 		await waitFor(250);
+
+		if (smtpPort === 587) {
+			if (!connection.startTls) throw new Error('STARTTLS non disponibile');
+			step = 'STARTTLS';
+			await send('STARTTLS');
+			await waitFor(220);
+			await upgradeTls();
+			step = 'EHLO dopo STARTTLS';
+			await send(`EHLO cornolere.it`);
+			await waitFor(250);
+		}
+
+		step = 'AUTH LOGIN';
+		await send(`AUTH LOGIN`);
+		await waitFor(334);
+		await send(btoa(smtpUser));
+		await waitFor(334);
+		await send(btoa(smtpPass));
+		await waitFor(235);
+
+		step = 'MAIL FROM';
+		await send(`MAIL FROM:<${smtpFrom}>`);
+		await waitFor(250);
+
+		step = 'RCPT TO';
+		await send(`RCPT TO:<${smtpTo}>`);
+		await waitFor(250);
+
+		step = 'DATA';
+		await send(`DATA`);
+		await waitFor(354);
+
+		const emailBody = [
+			'Nuova richiesta di contatto dal sito Cornolere',
+			'',
+			`Nome e cognome: ${nome}`,
+			`Telefono: ${telefono || '-'}`,
+			`Email: ${email}`,
+			`Indirizzo: ${indirizzo || '-'}`,
+			`Data inizio: ${dataInizio || '-'}`,
+			`Data fine: ${dataFine || '-'}`,
+			'',
+			'Messaggio:',
+			messaggio,
+		].join('\r\n');
+
+		const boundary = '----=_Boundary_' + Math.random().toString(36).slice(2);
+		const rawEmail = [
+			`From: ${smtpFrom}`,
+			`To: ${smtpTo}`,
+			`Reply-To: ${email}`,
+			`Subject: =?utf-8?B?${btoa('Richiesta informazioni Cornolere')}?=`,
+			`MIME-Version: 1.0`,
+			`Content-Type: multipart/alternative; boundary="${boundary}"`,
+			'',
+			`--${boundary}`,
+			`Content-Type: text/plain; charset=utf-8`,
+			`Content-Transfer-Encoding: 8bit`,
+			'',
+			emailBody,
+			'',
+			`--${boundary}--`,
+			'',
+		].join('\r\n');
+
+		step = 'invio corpo email';
+		await send(rawEmail);
+		await send('.');
+		await waitFor(250);
+
+		step = 'QUIT';
+		await send('QUIT');
+		await writer.close();
+	} catch (error) {
+		throw fail(error);
 	}
-
-	await send(`AUTH LOGIN`);
-	await waitFor(334);
-	await send(btoa(smtpUser));
-	await waitFor(334);
-	await send(btoa(smtpPass));
-	await waitFor(235);
-	await send(`MAIL FROM:<${smtpFrom}>`);
-	await waitFor(250);
-	await send(`RCPT TO:<${smtpTo}>`);
-	await waitFor(250);
-	await send(`DATA`);
-	await waitFor(354);
-
-	const emailBody = [
-		'Nuova richiesta di contatto dal sito Cornolere',
-		'',
-		`Nome e cognome: ${nome}`,
-		`Telefono: ${telefono || '-'}`,
-		`Email: ${email}`,
-		`Indirizzo: ${indirizzo || '-'}`,
-		`Data inizio: ${dataInizio || '-'}`,
-		`Data fine: ${dataFine || '-'}`,
-		'',
-		'Messaggio:',
-		messaggio,
-	].join('\r\n');
-
-	const boundary = '----=_Boundary_' + Math.random().toString(36).slice(2);
-	const rawEmail = [
-		`From: ${smtpFrom}`,
-		`To: ${smtpTo}`,
-		`Reply-To: ${email}`,
-		`Subject: =?utf-8?B?${btoa('Richiesta informazioni Cornolere')}?=`,
-		`MIME-Version: 1.0`,
-		`Content-Type: multipart/alternative; boundary="${boundary}"`,
-		'',
-		`--${boundary}`,
-		`Content-Type: text/plain; charset=utf-8`,
-		`Content-Transfer-Encoding: 8bit`,
-		'',
-		emailBody,
-		'',
-		`--${boundary}--`,
-		'',
-	].join('\r\n');
-
-	await send(rawEmail);
-	await send('.');
-	await waitFor(250);
-	await send('QUIT');
-	writer.close();
 }
 
 export async function POST({ request, locals }) {

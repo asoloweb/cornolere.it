@@ -13,7 +13,14 @@ async function openSocket(hostname, port, secure) {
 	if (ua.includes('Cloudflare-Workers')) {
 		const spec = 'cloudflare:sockets';
 		const { connect } = await import(/* @vite-ignore */ spec);
-		return connect({ hostname, port }, { secure });
+		const socket = connect(
+			{ hostname, port },
+			{ secureTransport: secure ? 'on' : 'starttls' }
+		);
+		return {
+			stream: socket,
+			startTls: secure ? null : () => socket.startTls(),
+		};
 	}
 
 	const tls = await import('node:tls');
@@ -29,22 +36,36 @@ async function openSocket(hostname, port, secure) {
 			});
 
 	const { Duplex } = await import('node:stream');
-	return Duplex.toWeb(nodeSocket);
+	return {
+		stream: Duplex.toWeb(nodeSocket),
+		startTls: secure
+			? null
+			: async () => {
+					const tlsSocket = await new Promise((resolve, reject) => {
+						const socket = tls.connect(
+							{ socket: nodeSocket, servername: hostname, rejectUnauthorized: false },
+							() => resolve(socket)
+						);
+						socket.once('error', reject);
+					});
+					return Duplex.toWeb(tlsSocket);
+				},
+	};
 }
 
 async function sendSmtp(env, { nome, telefono, email, indirizzo, dataInizio, dataFine, messaggio }) {
 	const smtpHost = env.SMTP_HOST;
-	const smtpPort = Number(env.SMTP_PORT || 587);
+	const smtpPort = Number(env.SMTP_PORT || 465);
 	const smtpUser = env.SMTP_USER;
 	const smtpPass = env.SMTP_PASSWORD;
 	const smtpFrom = env.SMTP_FROM || smtpUser;
 	const smtpTo = env.SMTP_TO || 'alessiaforner76@gmail.com';
 
 	const secure = smtpPort === 465;
-	const socket = await openSocket(smtpHost, smtpPort, secure);
-
-	const reader = socket.readable.getReader();
-	const writer = socket.writable.getWriter();
+	const connection = await openSocket(smtpHost, smtpPort, secure);
+	let socket = connection.stream;
+	let reader = socket.readable.getReader();
+	let writer = socket.writable.getWriter();
 
 	let buf = '';
 	const waitFor = async (code) => {
@@ -66,10 +87,27 @@ async function sendSmtp(env, { nome, telefono, email, indirizzo, dataInizio, dat
 		}
 	};
 	const send = (cmd) => writer.write(new TextEncoder().encode(cmd + '\r\n'));
+	const replaceSocket = (nextSocket) => {
+		reader.releaseLock();
+		writer.releaseLock();
+		socket = nextSocket;
+		reader = socket.readable.getReader();
+		writer = socket.writable.getWriter();
+	};
 
 	await waitFor(220);
 	await send(`EHLO cornolere.it`);
 	await waitFor(250);
+
+	if (smtpPort === 587) {
+		if (!connection.startTls) throw new Error('STARTTLS non disponibile');
+		await send('STARTTLS');
+		await waitFor(220);
+		replaceSocket(await connection.startTls());
+		await send(`EHLO cornolere.it`);
+		await waitFor(250);
+	}
+
 	await send(`AUTH LOGIN`);
 	await waitFor(334);
 	await send(btoa(smtpUser));
@@ -123,8 +161,8 @@ async function sendSmtp(env, { nome, telefono, email, indirizzo, dataInizio, dat
 	writer.close();
 }
 
-export async function POST({ request }) {
-	const env = import.meta.env || process.env;
+export async function POST({ request, locals }) {
+	const env = locals?.runtime?.env || import.meta.env || process.env;
 
 	try {
 		const body = await request.json().catch(() => ({}));
